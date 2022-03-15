@@ -2,8 +2,8 @@
 # by Brian Fraser
 
 # Edit this file to compile extra C files into their own programs.
-TARGET= beatbox
-OBJS = inputSampler.o joystickInput.o accelerometerInput.o beatbox.o audioMixer.o drumPlayer.o udp.o
+TARGET= calendar
+OBJS = inputSampler.o joystickInput.o accelerometerInput.o calendar.o audioMixer.o drumPlayer.o udp.o
 SOURCES= 
 
 
@@ -21,9 +21,9 @@ OBJFLAGS = -Wall -g -D _POSIX_C_SOURCE=200809L
 LFLAGS = -L$(HOME)/cmpt433/public/asound_lib_BBB
 ADDFLAGS = -lasound
 
-all: inputSampler.o beatbox.o audioMixer.o udp.o beatbox 
+all: inputSampler.o calendar.o audioMixer.o udp.o calendar 
 
-beatbox: $(OBJS)
+calendar: $(OBJS)
 	$(CC_CPP) $(CPPFLAGS) $(OBJS) -o $(OUTDIR)/$(TARGET) $(LFLAGS) -lpthread -lasound
 
 audioMixer.o: audioMixer.cpp 
@@ -32,8 +32,8 @@ audioMixer.o: audioMixer.cpp
 drumPlayer.o: drumPlayer.cpp 
 	$(CC_CPP) $(OBJFLAGS) -c drumPlayer.cpp -lpthread 	
 
-beatbox.o: beatbox.cpp 
-	$(CC_CPP) $(OBJFLAGS) -c beatbox.cpp -lpthread 
+calendar.o: calendar.cpp 
+	$(CC_CPP) $(OBJFLAGS) -c calendar.cpp -lpthread 
 
 inputSampler.o: inputSampler.cpp 
 	$(CC_CPP) $(OBJFLAGS) -c inputSampler.cpp -lpthread 
