@@ -1,11 +1,13 @@
+console.log("is it seeing this")
 const fs = require('fs');
 const readline = require('readline');
 const {google} = require('googleapis');
+var eventsArr = []
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/calendar.readonly'];
 // The file token.json stores the user's access and refresh tokens, and is
-// created automatically when the authorization flow completes for the first
+// created automatically wh,en the authorization flow completes for the first
 // time.
 const TOKEN_PATH = 'token.json';
 
@@ -88,10 +90,13 @@ function listEvents(auth) {
       console.log('Upcoming 10 events:');
       events.map((event, i) => {
         const start = event.start.dateTime || event.start.date;
-        console.log(`${start} - ${event.summary}`);
+        const end = event.end.dateTime || event.end.date
+        eventsArr.push(`${start} - ${end} - ${event.summary}`)
+        console.log(eventsArr[i])
       });
     } else {
       console.log('No upcoming events found.');
     }
   });
 }
+

@@ -11,6 +11,7 @@ var fs   = require('fs');
 var path = require('path');
 var mime = require('mime');
 
+
 /* 
  * Create the static web server
  */
