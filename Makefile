@@ -8,16 +8,16 @@ all: bbb server wav
 mini: bbb server
 
 bbb:
-	@echo 'CREATE beatbox EXEC OUTPUT TO $(PUBDIR)/beatbox-bbb/'
-	make --directory=beatbox-bbb
+	@echo 'CREATE calendar EXEC OUTPUT TO $(PUBDIR)/calendar-bbb/'
+	make --directory=calendar-bbb
 	@echo ''
 
 server:
-	@echo 'COPYING BEATBOX SERVER DIR TO $(PUBDIR)/beatbox-server-copy/'
+	@echo 'COPYING calendar SERVER DIR TO $(PUBDIR)/calendar-server-copy/'
 	@echo ''
-	mkdir -p $(PUBDIR)/beatbox-server-copy/ 
-	chmod a+rwx $(PUBDIR)/beatbox-server-copy/
-	cp -R beatbox-server/* $(PUBDIR)/beatbox-server-copy/
+	mkdir -p $(PUBDIR)/calendar-server-copy/ 
+	chmod a+rwx $(PUBDIR)/calendar-server-copy/
+	cp -R calendar-server/* $(PUBDIR)/calendar-server-copy/
 	@echo 'Do not edit any files in this folder; they are copied!'
 
 
@@ -25,11 +25,11 @@ server:
 npm: server 
 	@echo ''
 	@echo 'INSTALLING REQUIRED NODE PACKAGES'
-	@echo 'RUNNING NPM INSTALL IN $(PUBDIR)/beatbox-server-copy/'
+	@echo 'RUNNING NPM INSTALL IN $(PUBDIR)/calendar-server-copy/'
 	@echo ''
 	@echo '(This may take some time)'
 	@echo ''
-	cd $(PUBDIR)/beatbox-server-copy/ && npm install
+	cd $(PUBDIR)/calendar-server-copy/ && npm install
 	@echo ''
 
 
