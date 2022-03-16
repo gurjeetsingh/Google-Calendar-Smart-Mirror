@@ -46,7 +46,7 @@ $(document).ready(function() {
 		sendCommand("drum 2");
 	});
 
-	window.setInterval(function() {sendCommand("status 0")}, 800);
+	// window.setInterval(function() {sendCommand("status 0")}, 800);
 
 	socket.on('commandReply', function(result) {
 
@@ -84,7 +84,7 @@ $(document).ready(function() {
 		displayError("'BeagleBone is unavailable.'");
 	});
 
-	window.setInterval(function() {sendRequest('uptime')}, 1000);
+	// window.setInterval(function() {sendRequest('uptime')}, 1000);
 
 	// Handle data coming back from the server
 	socket.on('fileContents', function(result) {
