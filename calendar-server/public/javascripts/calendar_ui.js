@@ -1,6 +1,36 @@
 "use strict";
 // Client-side interactions with the browser.
 
+const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+ ];
+ 
+ const weekDays = [
+    "Sunday",
+    "Monday ",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+ ];
+
+
+
+
+
+
 // Make connection to server when web page is fully loaded.
 var socket = io.connect();
 $(document).ready(function() {
@@ -8,6 +38,8 @@ $(document).ready(function() {
 	// send drum pattern mode commands
 	$('#mode0').click(function(){
 		sendCommand("mode 0");
+		console.log("hi");
+		$('#modeid').text("hi");
 	});
 	$('#mode1').click(function(){
 		sendCommand("mode 1");
@@ -46,7 +78,13 @@ $(document).ready(function() {
 		sendCommand("drum 2");
 	});
 
-	// window.setInterval(function() {sendCommand("status 0")}, 800);
+	getLocalDate();
+
+	window.setInterval(function() {getLocalDate()}, 2000);
+
+
+
+	window.setInterval(function() {sendCommand("status 0")}, 800);
 
 	socket.on('commandReply', function(result) {
 
@@ -84,23 +122,72 @@ $(document).ready(function() {
 		displayError("'BeagleBone is unavailable.'");
 	});
 
-	// window.setInterval(function() {sendRequest('uptime')}, 1000);
+	window.setInterval(function() {sendRequest('uptime')}, 1000);
 
 	// Handle data coming back from the server
 	socket.on('fileContents', function(result) {
 		var contents = result.contents.split(' ')
 		// in seconds
 		var uptime = contents[0]
-		console.log("uptime is "+ uptime)
+		// console.log("uptime is "+ uptime)
 		var domObj = $('#status')
 
 		var uptimeConverted = new Date(uptime * 1000).toISOString().substr(11, 8)
 		// Make linefeeds into <br> tag.
 		uptimeConverted = replaceAll(uptimeConverted, "\n", "<br/>");
-		console.log(uptimeConverted)
+		// console.log(uptimeConverted)
 		domObj.html(uptimeConverted);
 	});
 });
+
+
+function apiRequestCalendarEvents() {
+	// send socket request to server
+
+	// testing w/o server connection
+	var result = {
+		events : [
+			{time: "time 1", title: "title 1"}, 
+			{time: "time 2", title: "title 2"},
+			{time: "time 3", title: "title 3"},
+		]
+	};
+
+	return result;
+
+	// end testing
+}
+
+
+function getLocalDate() {
+    var localDate = new Date();
+    var weekday = weekDays[localDate.getDay()];
+    var month = monthNames[localDate.getMonth()];
+    var day = localDate.getDate();
+    var hour = localDate.getHours(); //returns value 0-23 for the current hour
+    var min = localDate.getMinutes(); //returns value 0-59 for the current minute of the hour
+
+
+	if (hour < 12) {
+		$('#time-period').text("AM");
+	} else {
+		$('#time-period').text("PM");
+		if (hour > 12) {
+			hour -= 12;
+		}
+	}
+
+	if (min < 10) { 
+		min = 0 + min;
+	}
+    var text = String(hour + ':' + min);
+    $('#time-numeric').text(hour + ':' + min);
+    console.log(hour + ':' + min);
+
+	$('#date-weekday').text(weekday);
+	$('#date-month-day').text(month + " " + day);
+
+}
 
 // sends command to server for status updates and commands for bbb
 function sendCommand(message) {
@@ -145,3 +232,4 @@ function hideError() {
 	var msgHTML = replaceAll("No errors", "\n", "<br/>");
 	$('#error-text').html(msgHTML);
 }
+
