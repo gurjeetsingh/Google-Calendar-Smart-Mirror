@@ -131,10 +131,9 @@ h1 {
 }
 
 #schedule-cnt {
-	padding-top: 0;
-	padding-bottom: 2em;
-	padding: 0 0.5em 2em 0.5em;
+	padding: 0 0.8em 2em 0.8em;
 	width: 40%;
+	margin-top: 2em;
 }
 
 
@@ -142,26 +141,31 @@ h1 {
 	font-weight: lighter;
 }
 
+
+/* color changing with js */
+
 .schedule-event {
 	border-radius: 0.6em;
-	background-color: rgba(176,0,0,0.1);
-    /* border: thin solid; */
-	/* border-style: solid; */
-	border-color: 	rgba(176,0,0,0.9);
-	color: rgba(146,0,0,1); 
 	padding: 0.5em 1em;
+	margin: 0.4em 0.4em;
 	font-stretch: expanded;
+
+	/* background-color: rgba(176,0,0,0.1);
+	border-color: 	rgba(176,0,0,0.9); */
 }
 
 .schedule-event-time {
 	font-size: 1em;
 	padding: 0.2em 0.5em;
-	color: rgba(146,0,0,0.8); 
+
+	/* color: rgba(146,0,0,0.8);  */
 }
 
 .schedule-event-title {
 	font-size: 1.3em;
 	padding: 0.2em 0.5em;
+
+	/* color: rgba(146,0,0,1);  */
 }
 
 .inner-content {
