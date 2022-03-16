@@ -3,11 +3,13 @@
 body {
 	/* width: 800px; */
 	width: 90%;
-	margin-left: auto;
-	margin-right: auto;
+	/* margin-left: auto;
+	margin-left: 5%;
+	margin-right: 0; */
 	font-family: 'sans-serif', 'Open Sans', 'Courier New', Courier, monospace;
 	font-size: 1.15em;
 	color: rgb(80,80,100);;
+	margin: 2% 5%;
 }
 i { 
 	font-size: 4em;
@@ -63,6 +65,13 @@ h1 {
 	display: inline;
 }
 
+.cnt { 
+	display: inline-grid;
+	width: 35%;
+}
+
+
+
 .cnt-small {
 	display: inherit;
 }
@@ -102,6 +111,8 @@ h1 {
 #weather-cnt {
 	vertical-align: top;
 	padding-top: 1em;
+	display: table-cell;
+	/* background-color: #333333; */
 }
 
 #weather-icon {
@@ -132,8 +143,10 @@ h1 {
 
 #schedule-cnt {
 	padding: 0 0.8em 2em 0.8em;
-	width: 40%;
+	/* width: 40%; */
 	margin-top: 2em;
+	display: inline-block;
+	height: 400px;
 }
 
 
@@ -155,14 +168,14 @@ h1 {
 }
 
 .schedule-event-time {
-	font-size: 1em;
-	padding: 0.2em 0.5em;
+	font-size: 0.7em;
+	/* padding: 0.2em 0.5em; */
 
 	/* color: rgba(146,0,0,0.8);  */
 }
 
 .schedule-event-title {
-	font-size: 1.3em;
+	font-size: 1.1em;
 	padding: 0.2em 0.5em;
 
 	/* color: rgba(146,0,0,1);  */
@@ -174,6 +187,18 @@ h1 {
     border: thin gray solid;
     padding: 1.5em 0 0 0;
 }
+
+#piechart-cnt { 
+	width: fit-content;
+	display: inline-block;
+	vertical-align: top;
+	border-style: none;
+ 
+	width: 58%;
+    margin: 0;
+    padding: 5% 0 0 1%;
+}
+
 
 #status-box {
 	float: right;

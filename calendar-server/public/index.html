@@ -24,46 +24,52 @@
 					<span id='date-weekday' ></span>
 					<span id='date-month-day'></span>
 			</div>
-			<div class='cnt-small' id='weather-cnt'>
-					<img id="weather-icon" src="imgs/weather-cloud.png" alt="">
-				<div id='weather' class="inline">
 
-					<table id="weather-table" class="inline">
-						<tr>
-						<td id="weather-city" >Vancouver</td>
-						</tr>
-						<tr>
-						<td id="weather-celsius">15°C</td>
-						</tr>
-					</table>
+			<div class="cnt">
+
+				<div class='cnt-small' id='weather-cnt'>
+						<img id="weather-icon" src="imgs/weather-cloud.png" alt="">
+					<div id='weather' class="inline">
+
+						<table id="weather-table" class="inline">
+							<tr>
+							<td id="weather-city" >Vancouver</td>
+							</tr>
+							<tr>
+							<td id="weather-celsius">15°C</td>
+							</tr>
+						</table>
+					</div>
+						
 				</div>
-					
+
+				<!-- <div class="cnt"> -->
+					<div class='inner-content' id='schedule-cnt'>
+						<h2 id="schedule-header">Upcoming Schedule</h2>
+						<div id="schedule-event-cnt">
+							<div class="schedule-event" id="event1" style="	background-color: rgba(176,0,0,0.1);" >
+								<div class="schedule-event-time" style="color: rgba(146,0,0,0.8)">10:30-11:30</div>
+								<div class="schedule-event-title" style="color: rgba(146,0,0,1)">Pick up Dry Cleaning</div>
+							</div>
+							<div class="schedule-event" id="event1" style="	background-color: rgba(0,176,0,0.15);" >
+								<div class="schedule-event-time" style="color: rgba(0,146,0,0.8)">10:30-11:30</div>
+								<div class="schedule-event-title" style="color: rgba(0,146,0,1)">Pick up Dry Cleaning</div>
+							</div>
+							<div class="schedule-event" id="event1" style="	background-color: rgba(244,196,29,0.2);" >
+								<div class="schedule-event-time" style="color: rgba(166,112,0,0.8)">10:30-11:30</div>
+								<div class="schedule-event-title" style="color: rgb(198,135,5)">Pick up Dry Cleaning</div>
+							</div>
+							<div class="schedule-event" id="event1" style="	background-color: rgba(9, 167, 207,0.1);" >
+								<div class="schedule-event-time" style="color: rgba(0,147,187,0.8)">10:30-11:30</div>
+								<div class="schedule-event-title" style="color: rgba(0,147,187,1)">Pick up Dry Cleaning</div>
+							</div>
+						</div>
+					</div>
 			</div>
-
-
-			<div class='inner-content' id='schedule-cnt'>
-				<h2 id="schedule-header">Upcoming Schedule</h2>
-				<div id="schedule-event-cnt">
-					<div class="schedule-event" id="event1" style="	background-color: rgba(176,0,0,0.1);" >
-						<div class="schedule-event-time" style="color: rgba(146,0,0,0.8)">10:30-11:30</div>
-						<div class="schedule-event-title" style="color: rgba(146,0,0,1)">Pick up Dry Cleaning</div>
+					<div class='inner-content' id='piechart-cnt'>
+						<div id="piechart"></div>
 					</div>
-					<div class="schedule-event" id="event1" style="	background-color: rgba(0,176,0,0.15);" >
-						<div class="schedule-event-time" style="color: rgba(0,146,0,0.8)">10:30-11:30</div>
-						<div class="schedule-event-title" style="color: rgba(0,146,0,1)">Pick up Dry Cleaning</div>
-					</div>
-					<div class="schedule-event" id="event1" style="	background-color: rgba(244,196,29,0.2);" >
-						<div class="schedule-event-time" style="color: rgba(166,112,0,0.8)">10:30-11:30</div>
-						<div class="schedule-event-title" style="color: rgb(198,135,5)">Pick up Dry Cleaning</div>
-					</div>
-					<div class="schedule-event" id="event1" style="	background-color: rgba(9, 167, 207,0.1);" >
-						<div class="schedule-event-time" style="color: rgba(0,147,187,0.8)">10:30-11:30</div>
-						<div class="schedule-event-title" style="color: rgba(0,147,187,1)">Pick up Dry Cleaning</div>
-					</div>
-				</div>
-			</div>
-
-
+		
 		</div>
 <!-- 
 		<input class="button" type="button" id="mode0"  value="None"/>
@@ -72,7 +78,15 @@
 	<script src='/socket.io/socket.io.js' type='text/javascript'></script>
 	<script src='http://code.jquery.com/jquery-1.11.1.min.js' type='text/javascript'></script>
 
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+
+
 	<script src='javascripts/calendar_ui.js' type='text/javascript'></script>
 	<!-- <script src='javascripts/localDate_ui.js' type='text/javascript'></script> -->
+
+
+
+
 </body>
 </html>

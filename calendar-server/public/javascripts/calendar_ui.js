@@ -35,6 +35,11 @@ const monthNames = [
 var socket = io.connect();
 $(document).ready(function() {
 
+
+	google.charts.load('current', {'packages':['corechart']});
+	google.charts.setOnLoadCallback(drawPieChart);
+
+
 	// send drum pattern mode commands
 	$('#mode0').click(function(){
 		sendCommand("mode 0");
@@ -140,6 +145,9 @@ $(document).ready(function() {
 	});
 });
 
+$(window).resize(function () {
+    console.log($('#schedule-cnt').height()); 
+});
 
 function apiRequestCalendarEvents() {
 	// send socket request to server
@@ -170,6 +178,9 @@ function getLocalDate() {
 
 	if (hour < 12) {
 		$('#time-period').text("AM");
+		if (hour == 0) {
+			hour = 12;
+		}	
 	} else {
 		$('#time-period').text("PM");
 		if (hour > 12) {
@@ -178,7 +189,7 @@ function getLocalDate() {
 	}
 
 	if (min < 10) { 
-		min = 0 + min;
+		min = '0' + String(min);
 	}
     var text = String(hour + ':' + min);
     $('#time-numeric').text(hour + ':' + min);
@@ -188,6 +199,48 @@ function getLocalDate() {
 	$('#date-month-day').text(month + " " + day);
 
 }
+
+function drawPieChart() {
+	var data = google.visualization.arrayToDataTable([
+		['Task', 'Hours per Day'],
+		['Work',     11],
+		['Eat',      2],
+		['Commute',  2],
+		['Watch TV', 2],
+		['Sleep',    7]
+	  ]);
+
+	  console.log("og height");
+	  console.log($('#schedule-cnt').height());
+
+	  var height = $('#schedule-cnt').height();
+	  var width = $('#piechart').width();
+
+	  $('#schedule-cnt').height(height);
+
+
+	  console.log(typeof(height));
+	  console.log(height + ' ' + width);
+
+	  var options = {
+		legend: 'none',
+		chartArea: { 
+			height: 1000,
+			top: 0, 
+			left: 5,
+			right: 5
+		},
+		height: height + 100,
+		pieSliceText : 'none'
+
+	  };
+
+	  var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+
+	  chart.draw(data, options);
+}
+
+
 
 // sends command to server for status updates and commands for bbb
 function sendCommand(message) {
