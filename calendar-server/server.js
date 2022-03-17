@@ -67,7 +67,7 @@ function sendFile(response, filePath, fileContents) {
  * Create the Userver to listen for the websocket
  */
 var udpServer = require('./lib/udp_server');
-var udpServer = require('./calendar-api/index');
+var udpServer = require('./calendar-api/calandar_server');
 
 
 udpServer.listen(server);

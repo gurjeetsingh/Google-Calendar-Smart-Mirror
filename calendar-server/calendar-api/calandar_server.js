@@ -23,13 +23,12 @@ exports.listen = function(server) {
 	io.set('log level 1')
 
 	io.sockets.on('connection', function(socket) {
-		handleCommand(socket);
-		handleUptime(socket)
+		handleApiRequest(socket)
 	});
 };
 
-function handleUptime(socket) {
-	socket.on('proc', function(fileName) {
+function handleApiRequest(socket) {
+	socket.on('calendar', function(fileName) {
 		// DR. BRIAN'S NOTE: Very unsafe
 		// var absPath = "/proc/" + fileName
 		// console.log('accessing ' + absPath);
@@ -39,7 +38,7 @@ function handleUptime(socket) {
 		fs.exists(relPath, function(exists) {
 			if (exists) {
 				// Can use 2nd param: 'utf8', 
-				fs.readFile(relPath, function(err, fileData) {
+				fs.readFile(relPath, function(err, content) {
 					if (err) {
 						emitSocketData(socket, "credentials.json", 
 								"ERROR: Unable to read file " + relPath);
@@ -63,11 +62,11 @@ function handleUptime(socket) {
 // For Status (uptime)
 function emitSocketData(socket, apiMessage, contents) {
 	var result = {
-			api: message,
+			api: apiMessage,
 			contents: contents
 	}
 
-	socket.emit('fileContents', apiMessage, result);	
+	socket.emit('calendar-events', result);	
 }
 
 
@@ -157,8 +156,6 @@ function listEvents(auth, socket) {
 
 		// return events
 		// emitSocketData(socket, message, events);
-
-
 
 
 		} else {

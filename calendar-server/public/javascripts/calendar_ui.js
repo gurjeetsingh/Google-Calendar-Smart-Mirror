@@ -28,6 +28,7 @@ const monthNames = [
 
 
 
+var eventsArr = []
 
 
 
@@ -38,6 +39,9 @@ $(document).ready(function() {
 
 	google.charts.load('current', {'packages':['corechart']});
 	google.charts.setOnLoadCallback(drawPieChart);
+
+
+
 
 
 	// send drum pattern mode commands
@@ -127,22 +131,56 @@ $(document).ready(function() {
 		displayError("'BeagleBone is unavailable.'");
 	});
 
-	window.setInterval(function() {sendRequest('uptime')}, 1000);
+	// window.setInterval(function() {sendCalendarApiRequest()}, 1000);
+
+	sendCalendarApiRequest();
 
 	// Handle data coming back from the server
-	socket.on('fileContents', function(result) {
-		var contents = result.contents.split(' ')
-		// in seconds
-		var uptime = contents[0]
-		// console.log("uptime is "+ uptime)
-		var domObj = $('#status')
+	socket.on('calendar-events', function(result) {
+		var events = result.contents
 
-		var uptimeConverted = new Date(uptime * 1000).toISOString().substr(11, 8)
-		// Make linefeeds into <br> tag.
-		uptimeConverted = replaceAll(uptimeConverted, "\n", "<br/>");
-		// console.log(uptimeConverted)
-		domObj.html(uptimeConverted);
+		console.log(events)
+
+
+
+	
+		events.map((event, i) => {
+
+			// to-do get obj list by class
+
+			// var domObj = $('#schedule-event-title-' + i+1);
+
+			var domObj = $('#eventdump');
+
+			
+			console.log("event " + i)
+
+
+			const start = event.start.dateTime || event.start.date;
+			const end = event.end.dateTime || event.end.date
+			eventsArr.push(`${start} - ${end} - ${event.summary}`)
+			console.log(eventsArr[i])
+
+			var eventTitleHTML =  String(`<p>${event.summary}</p>`);
+
+			console.log(eventTitleHTML);
+
+			domObj.append(eventTitleHTML);
+
+
+		  });
+
+		
+
+		// var uptimeConverted = new Date(uptime * 1000).toISOString().substr(11, 8)
+		// // Make linefeeds into <br> tag.
+		// uptimeConverted = replaceAll(uptimeConverted, "\n", "<br/>");
+		// // console.log(uptimeConverted)
+		// domObj.html(uptimeConverted);
 	});
+
+
+
 });
 
 $(window).resize(function () {
@@ -255,12 +293,11 @@ function sendCommand(message) {
 }
 
 // sends request for device uptime
-function sendRequest(file) {
-	console.log("Requesting '" + file + "'");
+function sendCalendarApiRequest() {
 
 	// socket.connected for v0.9	
 	if (socket.socket.connected) {
-		socket.emit('proc', file);
+		socket.emit('calendar');
 	} else {
 		console.log("no server connection");
 	}
