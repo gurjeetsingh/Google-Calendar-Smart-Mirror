@@ -40,59 +40,11 @@ $(document).ready(function() {
 	google.charts.load('current', {'packages':['corechart']});
 	google.charts.setOnLoadCallback(drawPieChart);
 
-
-
-
-
-	// send drum pattern mode commands
-	$('#mode0').click(function(){
-		sendCommand("mode 0");
-		console.log("hi");
-		$('#modeid').text("hi");
-	});
-	$('#mode1').click(function(){
-		sendCommand("mode 1");
-	});
-	$('#mode2').click(function(){
-		sendCommand("mode 2");
-	});
-	$('#mode3').click(function(){
-		sendCommand("mode 3");
-	});
-
-	// send volume commands
-	$('#volumeDown').click(function(){
-		sendCommand("volume -5");
-	});
-	$('#volumeUp').click(function(){
-		sendCommand("volume 5");
-	});
-
-	// send tempo commands
-	$('#decreaseBPM').click(function(){
-		sendCommand("tempo -5");
-	});
-	$('#increaseBPM').click(function(){
-		sendCommand("tempo 5");
-	});
-
-	// send drumming commands
-	$('#hihatSound').click(function(){
-		sendCommand("drum 0");
-	});
-	$('#snareSound').click(function(){
-		sendCommand("drum 1");
-	});
-	$('#baseSound').click(function(){
-		sendCommand("drum 2");
-	});
-
 	getLocalDate();
 
 	window.setInterval(function() {getLocalDate()}, 2000);
 
-
-
+	// bbb udp command from as3
 	window.setInterval(function() {sendCommand("status 0")}, 800);
 
 	socket.on('commandReply', function(result) {
@@ -104,23 +56,6 @@ $(document).ready(function() {
 			case "tempo":
 				$('#BPMid').val(command[1])
 				break;
-			case "volume":
-				$('#volumeid').val(command[1]);
-				break;
-			case "mode":
-				//button value/name
-				var modeName = $('#mode' + command[1]).val()
-				$('#modeid').text(modeName)
-				break;
-			case "status":
-				$('#volumeid').val(command[2]);
-				$('#BPMid').val(command[3])
-				var modeName = $('#mode' + command[1]).val()
-				$('#modeid').text(modeName)
-				break;
-			// case "error":
-			// 	displayError("'BeagleBone is unavailable.'")
-			// 	break;
 			default:
 				break;
 		}
@@ -131,18 +66,13 @@ $(document).ready(function() {
 		displayError("'BeagleBone is unavailable.'");
 	});
 
-	// window.setInterval(function() {sendCalendarApiRequest()}, 1000);
 
-	sendCalendarApiRequest();
 
 	// Handle data coming back from the server
 	socket.on('calendar-events', function(result) {
 		var events = result.contents
 
 		console.log(events)
-
-
-
 	
 		events.map((event, i) => {
 
@@ -167,19 +97,15 @@ $(document).ready(function() {
 
 			domObj.append(eventTitleHTML);
 
-
 		  });
-
 		
-
-		// var uptimeConverted = new Date(uptime * 1000).toISOString().substr(11, 8)
-		// // Make linefeeds into <br> tag.
-		// uptimeConverted = replaceAll(uptimeConverted, "\n", "<br/>");
-		// // console.log(uptimeConverted)
-		// domObj.html(uptimeConverted);
 	});
 
 
+	setTimeout(function() { sendCalendarApiRequest() }, 1000);
+	// window.setInterval(function() {sendCalendarApiRequest()}, 1000);
+
+	// sendCalendarApiRequest();
 
 });
 
