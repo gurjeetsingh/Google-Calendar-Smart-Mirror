@@ -29,6 +29,7 @@ const monthNames = [
 
 
 var eventsArr = []
+var eventsTitle = []
 
 
 
@@ -77,26 +78,39 @@ $(document).ready(function() {
 		events.map((event, i) => {
 
 			// to-do get obj list by class
+			var timeObj = $('#schedule-event-time-' + i).addClass("schedule-event-time")
+			var domObj = $('#schedule-event-title-' + i).addClass("schedule-event-title")
 
-			// var domObj = $('#schedule-event-title-' + i+1);
 
-			var domObj = $('#eventdump');
+			const start = Date.parse(event.start.dateTime || event.start.date)
+			const convertedStartTime = convertMsToTime(start)
 
+			const end = Date.parse(event.end.dateTime || event.end.date)
+			const convertedEndTime = convertMsToTime(end)
+
+
+			eventsArr.push(`${convertedStartTime} - ${convertedEndTime}`)
 			
-			console.log("event " + i)
+			eventsTitle.push(`${event.summary}`)
+			console.log(`${eventsArr[i]}\n`)
+			console.log(`${eventsTitle[i]}\n`)
 
+			for(let i = 1; i < eventsArr.length; i++ ) {
+				timeObj.html(eventsArr[i])
+				domObj.html(eventsTitle[i])
+			}			
+			/*
+			var obj = $('#schedule-event-cnt')
+			.append('<div class=schedule-event-time>' + eventsArr[i] + '</div>')
 
-			const start = event.start.dateTime || event.start.date;
-			const end = event.end.dateTime || event.end.date
-			eventsArr.push(`${start} - ${end} - ${event.summary}`)
-			console.log(eventsArr[i])
-
-			var eventTitleHTML =  String(`<p>${event.summary}</p>`);
-
-			console.log(eventTitleHTML);
-
-			domObj.append(eventTitleHTML);
-
+			obj.append('<div class=schedule-event-title id=schedule-event-title-"' + i +'">' + eventsTitle[i] + '</div>')
+			var back = ["#1abc9c", "#2ecc71", "#3498db", "#9b59b6", "#f1c40f", "#e67e22", "#e67e22"];
+			for(let i = 0; i < events.length; i++) {
+				var rand = back[Math.floor(Math.random() * back.length)];
+				obj.css('background',rand)
+			}
+			i++
+			*/
 		  });
 		
 	});
@@ -248,4 +262,15 @@ function hideError() {
 	var msgHTML = replaceAll("No errors", "\n", "<br/>");
 	$('#error-text').html(msgHTML);
 }
+
+function convertMsToTime(milliseconds) {
+    var minutes = Math.floor((milliseconds / (1000 * 60)) % 60)
+    var hours = Math.floor((milliseconds/ (1000 * 60 * 60)) % 24);
+
+  	hours = (hours < 10) ? "0" + hours : hours;
+  	minutes = (minutes < 10) ? "0" + minutes : minutes;
+
+  	return hours + ":" + minutes
+}
+  
 
