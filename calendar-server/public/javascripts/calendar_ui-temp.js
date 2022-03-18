@@ -29,7 +29,6 @@ const monthNames = [
 
 
 var eventsArr = []
-var eventsTitle = []
 
 
 
@@ -78,42 +77,29 @@ $(document).ready(function() {
 		events.map((event, i) => {
 
 			// to-do get obj list by class
-			var timeObj = $('#schedule-event-time-' + i).addClass("schedule-event-time")
-			var domObj = $('#schedule-event-title-' + i).addClass("schedule-event-title")
 
+			// var domObj = $('#schedule-event-title-' + i+1);
 
-			const start = Date.parse(event.start.dateTime || event.start.date)
-			const convertedStartTime = convertMsToTime(start)
+			var domObj = $('#eventdump');
 
-			const end = Date.parse(event.end.dateTime || event.end.date)
-			const convertedEndTime = convertMsToTime(end)
-
-
-			eventsArr.push(`${convertedStartTime} - ${convertedEndTime}`)
 			
-			eventsTitle.push(`${event.summary}`)
-			console.log(`${eventsArr[i]}\n`)
-			console.log(`${eventsTitle[i]}\n`)
+			console.log("event " + i)
 
-			for(let i = 1; i < eventsArr.length; i++ ) {
-				timeObj.html(eventsArr[i])
-				domObj.html(eventsTitle[i])
-			}			
-			/*
-			var obj = $('#schedule-event-cnt')
-			.append('<div class=schedule-event-time>' + eventsArr[i] + '</div>')
 
-			obj.append('<div class=schedule-event-title id=schedule-event-title-"' + i +'">' + eventsTitle[i] + '</div>')
-			var back = ["#1abc9c", "#2ecc71", "#3498db", "#9b59b6", "#f1c40f", "#e67e22", "#e67e22"];
-			for(let i = 0; i < events.length; i++) {
-				var rand = back[Math.floor(Math.random() * back.length)];
-				obj.css('background',rand)
-			}
-			i++
-			*/
+			const start = event.start.dateTime || event.start.date;
+			const end = event.end.dateTime || event.end.date
+			eventsArr.push(`${start} - ${end} - ${event.summary}`)
+			console.log(eventsArr[i])
+
+			var eventTitleHTML =  String(`<p>${event.summary}</p>`);
+
+			console.log(eventTitleHTML);
+
+			domObj.append(eventTitleHTML);
+
 		  });
-	});	
-
+		
+	});
 
 	// Handle data coming back from the server
 	socket.on('weather-api', function(result) {
@@ -132,9 +118,34 @@ $(document).ready(function() {
 		$('#weather-city').html(city);
 
 		$('#weather-celsius-mag').html(celsius);
+	
+		// events.map((event, i) => {
 
-	});		  
+		// 	// to-do get obj list by class
+
+		// 	// var domObj = $('#schedule-event-title-' + i+1);
+
+		// 	var domObj = $('#eventdump');
+
+			
+		// 	console.log("event " + i)
+
+
+		// 	const start = event.start.dateTime || event.start.date;
+		// 	const end = event.end.dateTime || event.end.date
+		// 	eventsArr.push(`${start} - ${end} - ${event.summary}`)
+		// 	console.log(eventsArr[i])
+
+		// 	var eventTitleHTML =  String(`<p>${event.summary}</p>`);
+
+		// 	console.log(eventTitleHTML);
+
+		// 	domObj.append(eventTitleHTML);
+
+		//   });
 		
+	});
+
 
 	setTimeout(function() { sendCalendarApiRequest(); sendWeatherApiRequest() }, 1000);
 	// window.setInterval(function() {sendCalendarApiRequest()}, 1000);
@@ -162,20 +173,6 @@ function apiRequestCalendarEvents() {
 	return result;
 
 	// end testing
-}
-
-
-
-
-// sends request for device uptime
-function sendWeatherApiRequest() {
-
-	// socket.connected for v0.9	
-	if (socket.socket.connected) {
-		socket.emit('weather');
-	} else {
-		console.log("no server connection");
-	}
 }
 
 
@@ -277,6 +274,20 @@ function sendCalendarApiRequest() {
 	}
 }
 
+// sends request for device uptime
+function sendWeatherApiRequest() {
+
+	// socket.connected for v0.9	
+	if (socket.socket.connected) {
+		socket.emit('weather');
+	} else {
+		console.log("no server connection");
+	}
+}
+
+
+
+
 function replaceAll(str, find, replace) {
 	return str.replace(new RegExp(find, 'g'), replace);
 }
@@ -296,15 +307,4 @@ function hideError() {
 	var msgHTML = replaceAll("No errors", "\n", "<br/>");
 	$('#error-text').html(msgHTML);
 }
-
-function convertMsToTime(milliseconds) {
-    var minutes = Math.floor((milliseconds / (1000 * 60)) % 60)
-    var hours = Math.floor((milliseconds/ (1000 * 60 * 60)) % 24);
-
-  	hours = (hours < 10) ? "0" + hours : hours;
-  	minutes = (minutes < 10) ? "0" + minutes : minutes;
-
-  	return hours + ":" + minutes
-}
-  
 

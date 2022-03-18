@@ -24,8 +24,29 @@ exports.listen = function(server) {
 
 	io.sockets.on('connection', function(socket) {
 		handleApiRequest(socket)
+		handleWeatherApiRequest(socket)
 	});
 };
+
+function handleWeatherApiRequest(socket) {
+	socket.on('weather', function(cityName) {
+
+        // testing purposes
+        cityName = 'vancouver';
+
+		var request = require('request');
+        request(`https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=b826132a8d9399e92d8f146145a34953&units=metric`,
+            function (error, response, body) {
+                let data = JSON.parse(body);
+                if(response.statusCode === 200){
+                    // res.send(`The weather in "${city}" is "${data.weather[0].description}`);
+                    emitSocketDataWeather(socket, "weather-response", data);
+                }
+            }
+        );
+	});
+};
+
 
 function handleApiRequest(socket) {
 	socket.on('calendar', function(fileName) {
@@ -59,7 +80,17 @@ function handleApiRequest(socket) {
 	});
 };
 
-// For Status (uptime)
+function emitSocketDataWeather(socket, apiMessage, contents) {
+	var result = {
+			api: apiMessage,
+			contents: contents
+	}
+
+	socket.emit('weather-api', result);	
+}
+
+
+
 function emitSocketData(socket, apiMessage, contents) {
 	var result = {
 			api: apiMessage,
