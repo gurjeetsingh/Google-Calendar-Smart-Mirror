@@ -27,9 +27,32 @@ const monthNames = [
  ];
 
 
+// const eventStyles = [
+// 	// title, time, background
+// 	// red
+// 	["color: rgba(146,0,0,1)", "color: rgba(146,0,0,0.8)", "background-color: rgba(176,0,0,0.1);"],
+// 	// green
+// 	["color: rgba(0,146,0,1)", "color: rgba(0,146,0,0.8)", "background-color: rgba(0,176,0,0.15);"],
+// 	// orange
+// 	["color: rgb(198,135,5)", "color: rgba(166,112,0,0.8)", "background-color: rgba(244,196,29,0.2);"],
+// 	// blue
+// 	["color: rgba(0,147,187,1)", "color: rgba(0,147,187,0.8)", "	background-color: rgba(9, 167, 207,0.1);"]
+// ];
+
+const eventStyles = [
+	//  background, time, title,
+	// red
+	["rgba(176,0,0,0.1)", "rgba(146,0,0,0.8)", "rgba(146,0,0,1)"],
+	// green
+	["rgba(0,176,0,0.15)", "rgba(0,146,0,0.8)", "rgba(0,146,0,1)"],
+	// orange
+	["rgba(244,196,29,0.2)", "rgba(166,112,0,0.8)", "rgb(198,135,5)"],
+	// blue
+	["rgba(9, 167, 207,0.1)", "rgba(0,147,187,0.8)", "rgba(0,147,187,1)"]
+];
 
 var eventsArr = []
-var eventsTitle = []
+// var eventsTitle = []
 
 
 
@@ -75,42 +98,69 @@ $(document).ready(function() {
 
 		console.log(events)
 	
+		var cntObj = $('#schedule-event-cnt')
 		events.map((event, i) => {
 
-			// to-do get obj list by class
-			var timeObj = $('#schedule-event-time-' + i).addClass("schedule-event-time")
-			var domObj = $('#schedule-event-title-' + i).addClass("schedule-event-title")
+			// // to-do get obj list by class
+			// var timeObj = $('#schedule-event-time-' + i).addClass("schedule-event-time")
+			// var domObj = $('#schedule-event-title-' + i).addClass("schedule-event-title")
 
+			// $("schedule-event-cnt").append("Some appended text.");
 
-			const start = Date.parse(event.start.dateTime || event.start.date)
+			const start = new Date(event.start.dateTime)
+			var hour = start.getHours(); //returns value 0-23 for the current hour
+			var min = start.getMinutes(); //returns value 0-59 for the current minute of the hour
+			console.log(hour, min)
 			const convertedStartTime = convertMsToTime(start)
 
 			const end = Date.parse(event.end.dateTime || event.end.date)
 			const convertedEndTime = convertMsToTime(end)
 
 
-			eventsArr.push(`${convertedStartTime} - ${convertedEndTime}`)
+			// eventsArr.push(`${convertedStartTime} - ${convertedEndTime}`)
 			
-			eventsTitle.push(`${event.summary}`)
-			console.log(`${eventsArr[i]}\n`)
-			console.log(`${eventsTitle[i]}\n`)
+			// eventsTitle.push(`${event.summary}`)
+			// console.log(`${eventsArr[i]}\n`)
+			// console.log(`${eventsTitle[i]}\n`)
 
-			for(let i = 1; i < eventsArr.length; i++ ) {
-				timeObj.html(eventsArr[i])
-				domObj.html(eventsTitle[i])
-			}			
-			/*
-			var obj = $('#schedule-event-cnt')
-			.append('<div class=schedule-event-time>' + eventsArr[i] + '</div>')
+			// for(let i = 1; i < eventsArr.length; i++ ) {
+			// 	timeObj.html(eventsArr[i])
+			// 	domObj.html(eventsTitle[i])
+			// }			
+			
+			var eventTime = `${convertedStartTime[0]}:${convertedStartTime[1]} - ${convertedEndTime[0]}:${convertedEndTime[1]}`
+			var eventTitle = event.summary
 
-			obj.append('<div class=schedule-event-title id=schedule-event-title-"' + i +'">' + eventsTitle[i] + '</div>')
-			var back = ["#1abc9c", "#2ecc71", "#3498db", "#9b59b6", "#f1c40f", "#e67e22", "#e67e22"];
-			for(let i = 0; i < events.length; i++) {
-				var rand = back[Math.floor(Math.random() * back.length)];
-				obj.css('background',rand)
-			}
-			i++
-			*/
+			// convert 1hr == 60 min time to 1hr == 100 
+			var startTime24 = parseInt(convertedStartTime[0]) + (convertedStartTime[1]/60);
+			var endTime24 = parseInt(convertedEndTime[0]) + (convertedEndTime[1]/60);
+			console.log("startTime24: ", startTime24, " endTime24: ", endTime24)
+			var piechartTime = {start: startTime24,
+								length: endTime24 - startTime24 
+								}
+			
+
+			var eventColours = eventStyles[i];
+
+			eventsArr.push([eventTime, eventTitle, eventStyles[i]]);
+
+			var eventDivHTMTL = 
+				`<div class=schedule-event id=event${i+5} style="background-color: ${eventColours[0]}" >
+					<div class="schedule-event-time" id="schedule-event-time-${i+5}" style="color: ${eventColours[1]}">${eventTime}</div>
+					<div class="schedule-event-title" id="schedule-event-title-${i+5}" style="color: ${eventColours[2]}">${eventTitle}</div>
+				</div>`
+			cntObj.append(eventDivHTMTL)
+
+			// var eventObj = $('#event' + i+5)
+
+			// eventObj.append('<div class=schedule-event-title id=schedule-event-title-"' + i+5 +'">' + eventsTitle[i] + '</div>')
+			// var back = ["#1abc9c", "#2ecc71", "#3498db", "#9b59b6", "#f1c40f", "#e67e22", "#e67e22"];
+			// for(let i = 5; i < events.length+5; i++) {
+			// 	var rand = back[Math.floor(Math.random() * back.length)];
+			// 	eventObj.css('background',rand)
+			// }
+			// i++
+			
 		  });
 	});	
 
@@ -213,6 +263,13 @@ function getLocalDate() {
 }
 
 function drawPieChart() {
+
+
+	var pieDataArr = [['Events', 'Time']];
+	for (var i = 0; i < pieDataArr.length; i++) {
+		pieDataArr.push
+	}
+
 	var data = google.visualization.arrayToDataTable([
 		['Task', 'Hours per Day'],
 		['Work',     11],
@@ -272,6 +329,7 @@ function sendCalendarApiRequest() {
 	// socket.connected for v0.9	
 	if (socket.socket.connected) {
 		socket.emit('calendar');
+		console.log("socket emmit calendar");
 	} else {
 		console.log("no server connection");
 	}
@@ -304,7 +362,8 @@ function convertMsToTime(milliseconds) {
   	hours = (hours < 10) ? "0" + hours : hours;
   	minutes = (minutes < 10) ? "0" + minutes : minutes;
 
-  	return hours + ":" + minutes
+  	// return hours + ":" + minutes
+	  return [hours, minutes]
 }
   
 

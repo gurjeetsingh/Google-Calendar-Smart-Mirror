@@ -3,7 +3,7 @@
 //
 // Launch server with:
 //   $ node server.js
-var PORT_NUMBER = 8088;
+var PORT_NUMBER = 8008;
 
 
 var http = require('http');
