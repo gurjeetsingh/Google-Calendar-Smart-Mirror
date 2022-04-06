@@ -62,7 +62,7 @@ $(document).ready(function() {
 
 
 	google.charts.load('current', {'packages':['corechart']});
-	google.charts.setOnLoadCallback(drawPieChart);
+	// google.charts.setOnLoadCallback(drawPieChart);
 
 	getLocalDate();
 
@@ -142,7 +142,7 @@ $(document).ready(function() {
 
 			var eventColours = eventStyles[i];
 
-			eventsArr.push([eventTime, eventTitle, eventStyles[i]]);
+			eventsArr.push({time: piechartTime, title: eventTitle, style: eventStyles[i]});
 
 			var eventDivHTMTL = 
 				`<div class=schedule-event id=event${i+5} style="background-color: ${eventColours[0]}" >
@@ -187,6 +187,8 @@ $(document).ready(function() {
 		
 
 	setTimeout(function() { sendCalendarApiRequest(); sendWeatherApiRequest() }, 1000);
+	setTimeout(function() { google.charts.setOnLoadCallback(drawPieChart);}, 3000);
+	
 	// window.setInterval(function() {sendCalendarApiRequest()}, 1000);
 
 	// sendCalendarApiRequest();
@@ -257,7 +259,6 @@ function getLocalDate() {
 	
     var text = convertToStringTime(hour, min);
     $('#time-numeric').text(text);
-    console.log(hour + ':' + min);
 
 	$('#date-weekday').text(weekday);
 	$('#date-month-day').text(month + " " + day);
@@ -278,22 +279,29 @@ function convertToStringTime(hour, minutes) {
 
 function drawPieChart() {
 
+	console.log(eventsArr)
 
 	var pieDataArr = [['Events', 'Time']];
-	for (var i = 0; i < pieDataArr.length; i++) {
-		pieDataArr.push
+	for (var i = 0; i < eventsArr.length; i++) {
+		console.log(eventsArr[i])
+		var event = eventsArr[i]
+		pieDataArr.push([event.title, event.time.length])
 	}
 
-	var data = google.visualization.arrayToDataTable([
-		['Task', 'Hours per Day'],
-		['Work',     11],
-		['Eat',      2],
-		['Commute',  2],
-		['Watch TV', 2],
-		['Sleep',    7]
-	  ]);
+	// var data = google.visualization.arrayToDataTable([
+	// 	['Events', 'Hours'],
+	// 	['Work',     11],
+	// 	['Eat',      2],
+	// 	['Commute',  2],
+	// 	['Watch TV', 2],
+	// 	['Sleep',    7]
+	//   ]);
 
-	  console.log("og height");
+	var data = google.visualization.arrayToDataTable(pieDataArr);
+
+
+
+	console.log("og height");
 	  console.log($('#schedule-cnt').height());
 
 	  var height = $('#schedule-cnt').height();
