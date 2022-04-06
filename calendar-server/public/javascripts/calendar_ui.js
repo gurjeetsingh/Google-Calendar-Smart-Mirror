@@ -52,9 +52,24 @@ const eventStyles = [
 ];
 
 var eventsArr = []
+var selectedEvent = 0;
 // var eventsTitle = []
 
-
+// on keypress
+$(document).keypress(function(e) {
+	console.log(e)
+	e.preventDefault();
+	console.log("keypress")
+	var code = e.keyCode || e.which;
+	if(code == 119) { // w
+		console.log("w key pressed");
+		updateSelectedEvent("up");
+	} 
+	if(code == 115) { // s
+		console.log("s key pressed");
+		updateSelectedEvent("down");
+	}
+});
 
 // Make connection to server when web page is fully loaded.
 var socket = io.connect();
@@ -136,24 +151,25 @@ $(document).ready(function() {
 			var endTime24 = parseInt(endHour) + (endMin/60);
 			console.log("startTime24: ", startTime24, " endTime24: ", endTime24)
 			var piechartTime = {start: startTime24,
-								length: endTime24 - startTime24 
+								length: Math.abs(endTime24 - startTime24) 
 								}
 			
 
 			var eventColours = eventStyles[i];
 
-			eventsArr.push({time: piechartTime, title: eventTitle, style: eventStyles[i]});
+			eventsArr.push({time: piechartTime, title: eventTitle, desc: event.description, style: eventStyles[i]});
 
 			var eventDivHTMTL = 
-				`<div class=schedule-event id=event${i+5} style="background-color: ${eventColours[0]}" >
-					<div class="schedule-event-time" id="schedule-event-time-${i+5}" style="color: ${eventColours[1]}">${eventTime}</div>
-					<div class="schedule-event-title" id="schedule-event-title-${i+5}" style="color: ${eventColours[2]}">${eventTitle}</div>
+				`<div class=schedule-event id=event${i} style="background-color: ${eventColours[0]}" >
+					<div class="schedule-event-time" id="schedule-event-time-${i}" style="color: ${eventColours[1]}">${eventTime}</div>
+					<div class="schedule-event-title" id="schedule-event-title-${i}" style="color: ${eventColours[2]}">${eventTitle}</div>
+					<div class="schedule-event-desc" id="schedule-event-desc-${i}" style="display: none; color: ${eventColours[1]}">${event.description}</div>
 				</div>`
 			cntObj.append(eventDivHTMTL)
 
-			// var eventObj = $('#event' + i+5)
+			// var eventObj = $('#event' + i)
 
-			// eventObj.append('<div class=schedule-event-title id=schedule-event-title-"' + i+5 +'">' + eventsTitle[i] + '</div>')
+			// eventObj.append('<div class=schedule-event-title id=schedule-event-title-"' + i +'">' + eventsTitle[i] + '</div>')
 			// var back = ["#1abc9c", "#2ecc71", "#3498db", "#9b59b6", "#f1c40f", "#e67e22", "#e67e22"];
 			// for(let i = 5; i < events.length+5; i++) {
 			// 	var rand = back[Math.floor(Math.random() * back.length)];
@@ -188,6 +204,8 @@ $(document).ready(function() {
 
 	setTimeout(function() { sendCalendarApiRequest(); sendWeatherApiRequest() }, 1000);
 	setTimeout(function() { google.charts.setOnLoadCallback(drawPieChart);}, 3000);
+
+
 	
 	// window.setInterval(function() {sendCalendarApiRequest()}, 1000);
 
@@ -195,9 +213,16 @@ $(document).ready(function() {
 
 });
 
+// update events cnt if window size changed
 $(window).resize(function () {
     console.log($('#schedule-cnt').height()); 
 });
+
+
+
+
+
+
 
 function apiRequestCalendarEvents() {
 	// send socket request to server
@@ -388,4 +413,42 @@ function convertMsToTime(milliseconds) {
 	  return [hours, minutes]
 }
   
+function updateSelectedEvent(dir) {
+	var numEvents = eventsArr.length;
 
+	var eventDescObj = $('#schedule-event-desc-' + selectedEvent)
+	eventDescObj.css('display', 'none')
+
+
+	if (dir === 'up') {
+		selectedEvent = (selectedEvent+numEvents-1) % numEvents; 
+	} else if (dir === 'down') {
+		selectedEvent = (selectedEvent+1) % numEvents;
+	}
+	// var event = eventsArr[selectedEvent]
+	// console.log('selected event #' + selectedEvent);
+	// var eventColours = eventStyles[selectedEvent];
+	// var eventObj = $('#event' + selectedEvent)
+	// var eventDescDivHTMTL = 
+	// 	`<div class="schedule-event-desc" id="schedule-event-desc-${selectedEvent}" style="color: ${eventColours[1]}">${event.desc}</div>`
+	// eventObj.append(eventDescDivHTMTL)
+
+	eventDescObj = $('#schedule-event-desc-' + selectedEvent)
+	eventDescObj.css('display', 'revert')
+}
+
+function displayError(message) {
+	$('#error-box').css('display', 'revert');
+	$('#container').css('padding-bottom', '0');
+
+	var msgHTML = replaceAll(message, "\n", "<br/>");
+	$('#error-text').html(msgHTML);
+}
+
+function hideError() {
+	$('#error-box').css('display', 'none');
+	$('#container').css('padding-bottom', '2em');
+
+	var msgHTML = replaceAll("No errors", "\n", "<br/>");
+	$('#error-text').html(msgHTML);
+}

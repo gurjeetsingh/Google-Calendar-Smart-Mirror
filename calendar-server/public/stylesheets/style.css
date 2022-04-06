@@ -177,6 +177,11 @@ h1 {
 	padding: 0.2em 0.5em;
 }
 
+.schedule-event-desc {
+	font-size: 0.8em;
+	padding: 0.2em 0.5em;
+}
+
 .inner-content {
 	margin-top: 10pt;
     border-radius: 0.5em;
