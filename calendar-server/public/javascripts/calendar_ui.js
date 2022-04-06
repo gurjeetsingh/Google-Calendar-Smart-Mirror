@@ -108,13 +108,13 @@ $(document).ready(function() {
 			// $("schedule-event-cnt").append("Some appended text.");
 
 			const start = new Date(event.start.dateTime)
-			var hour = start.getHours(); //returns value 0-23 for the current hour
-			var min = start.getMinutes(); //returns value 0-59 for the current minute of the hour
-			console.log(hour, min)
-			const convertedStartTime = convertMsToTime(start)
-
-			const end = Date.parse(event.end.dateTime || event.end.date)
-			const convertedEndTime = convertMsToTime(end)
+			var startHour = start.getHours(); //returns value 0-23 for the current hour
+			var startMin = start.getMinutes(); //returns value 0-59 for the current minute of the hour
+			const convertedStartTime = convertToStringTime(startHour, startMin);
+			const end = new Date(event.end.dateTime)
+			var endHour = end.getHours(); //returns value 0-23 for the current hour
+			var endMin = end.getMinutes(); //returns value 0-59 for the current minute of the hour
+			const convertedEndTime = convertToStringTime(endHour, endMin);
 
 
 			// eventsArr.push(`${convertedStartTime} - ${convertedEndTime}`)
@@ -128,12 +128,12 @@ $(document).ready(function() {
 			// 	domObj.html(eventsTitle[i])
 			// }			
 			
-			var eventTime = `${convertedStartTime[0]}:${convertedStartTime[1]} - ${convertedEndTime[0]}:${convertedEndTime[1]}`
+			var eventTime = `${convertedStartTime} - ${convertedEndTime}`
 			var eventTitle = event.summary
 
 			// convert 1hr == 60 min time to 1hr == 100 
-			var startTime24 = parseInt(convertedStartTime[0]) + (convertedStartTime[1]/60);
-			var endTime24 = parseInt(convertedEndTime[0]) + (convertedEndTime[1]/60);
+			var startTime24 = parseInt(startHour) + (startMin/60);
+			var endTime24 = parseInt(endHour) + (endMin/60);
 			console.log("startTime24: ", startTime24, " endTime24: ", endTime24)
 			var piechartTime = {start: startTime24,
 								length: endTime24 - startTime24 
@@ -238,28 +238,42 @@ function getLocalDate() {
     var min = localDate.getMinutes(); //returns value 0-59 for the current minute of the hour
 
 
-	if (hour < 12) {
-		$('#time-period').text("AM");
-		if (hour == 0) {
-			hour = 12;
-		}	
-	} else {
-		$('#time-period').text("PM");
-		if (hour > 12) {
-			hour -= 12;
-		}
-	}
+	// if (hour < 12) {
+	// 	$('#time-period').text("AM");
+	// 	if (hour == 0) {
+	// 		hour = 12;
+	// 	}	
+	// } else {
+	// 	$('#time-period').text("PM");
+	// 	if (hour > 12) {
+	// 		hour -= 12;
+	// 	}
+	// }
 
-	if (min < 10) { 
-		min = '0' + String(min);
-	}
-    var text = String(hour + ':' + min);
-    $('#time-numeric').text(hour + ':' + min);
+	// if (min < 10) { 
+	// 	min = '0' + String(min);
+	// }
+
+	
+    var text = convertToStringTime(hour, min);
+    $('#time-numeric').text(text);
     console.log(hour + ':' + min);
 
 	$('#date-weekday').text(weekday);
 	$('#date-month-day').text(month + " " + day);
 
+}
+
+function convertToStringTime(hour, minutes) {
+	if (hour < 10) {
+		hour = '0' + String(hour);
+	}
+	if (minutes < 10) { 
+		minutes = '0' + String(minutes);
+	}
+    // var text = String(hour + ':' + minutes);
+    // console.log(hour + ':' + minutes);
+	return hour + ':' + minutes
 }
 
 function drawPieChart() {
