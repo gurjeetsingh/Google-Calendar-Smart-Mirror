@@ -27,33 +27,52 @@ const monthNames = [
  ];
 
 
+const eventStyles = {
+	// title, time, background
+	// red
+	"red": {
+		"title": "rgba(146,0,0,1)", "time" : "rgba(146,0,0,0.8)", "background": "rgba(176,0,0,0.1);"
+	},
+	// green
+	"green": {"title" : "rgba(0,146,0,1)", "time" : "rgba(0,146,0,0.8)", "background" : "rgba(0,176,0,0.15);"
+	},
+	// orange
+	"orange": {"title" : "rgb(198,135,5)", "time" : "rgba(166,112,0,0.8)", "background" : "rgba(244,196,29,0.2);"
+	},
+	// blue
+	"blue": {"title" : "rgba(0,147,187,1)", "time" : "rgba(0,147,187,0.8)", "background" : "rgba(9, 167, 207,0.1);"
+	}
+}
+
 // const eventStyles = [
-// 	// title, time, background
+// 	//  background, time, title,
 // 	// red
-// 	["color: rgba(146,0,0,1)", "color: rgba(146,0,0,0.8)", "background-color: rgba(176,0,0,0.1);"],
+// 	["rgba(176,0,0,0.1)", "rgba(146,0,0,0.8)", "rgba(146,0,0,1)"],
 // 	// green
-// 	["color: rgba(0,146,0,1)", "color: rgba(0,146,0,0.8)", "background-color: rgba(0,176,0,0.15);"],
+// 	["rgba(0,176,0,0.15)", "rgba(0,146,0,0.8)", "rgba(0,146,0,1)"],
 // 	// orange
-// 	["color: rgb(198,135,5)", "color: rgba(166,112,0,0.8)", "background-color: rgba(244,196,29,0.2);"],
+// 	["rgba(244,196,29,0.2)", "rgba(166,112,0,0.8)", "rgb(198,135,5)"],
 // 	// blue
-// 	["color: rgba(0,147,187,1)", "color: rgba(0,147,187,0.8)", "	background-color: rgba(9, 167, 207,0.1);"]
+// 	["rgba(9, 167, 207,0.1)", "rgba(0,147,187,0.8)", "rgba(0,147,187,1)"]
 // ];
 
-const eventStyles = [
-	//  background, time, title,
-	// red
-	["rgba(176,0,0,0.1)", "rgba(146,0,0,0.8)", "rgba(146,0,0,1)"],
-	// green
-	["rgba(0,176,0,0.15)", "rgba(0,146,0,0.8)", "rgba(0,146,0,1)"],
-	// orange
-	["rgba(244,196,29,0.2)", "rgba(166,112,0,0.8)", "rgb(198,135,5)"],
-	// blue
-	["rgba(9, 167, 207,0.1)", "rgba(0,147,187,0.8)", "rgba(0,147,187,1)"]
-];
+// const eventStyles = {
+// 	colourNames: ["red", "green", "orange", "blue"],
+// 	backgroundColors: ["rgba(176,0,0,0.1)", "rgba(0,176,0,0.15)", "rgba(244,196,29,0.2)", "rgba(9, 167, 207,0.1)"],
+// 	time: ["rgba(146,0,0,0.8)", "rgba(0,146,0,0.8)", "rgba(166,112,0,0.8)", "rgba(0,147,187,0.8)"],
+// 	title: ["rgba(146,0,0,1)", "rgba(0,146,0,1)", "rgb(198,135,5)", "rgba(0,147,187,1)"],
+
+// }
+
+
+
 
 var eventsArr = []
 var selectedEvent = 0;
 // var eventsTitle = []
+
+var calendarNames = [];
+var calendarColours = [];
 
 // on keypress
 $(document).keypress(function(e) {
@@ -80,8 +99,10 @@ $(document).ready(function() {
 	// google.charts.setOnLoadCallback(drawPieChart);
 
 	getLocalDate();
+	
+	
 
-	window.setInterval(function() {getLocalDate()}, 2000);
+	window.setInterval(function() {getLocalDate(); }, 2000);
 
 	// bbb udp command from as3
 	window.setInterval(function() {sendCommand("status 0")}, 800);
@@ -105,15 +126,23 @@ $(document).ready(function() {
 		displayError("'BeagleBone is unavailable.'");
 	});
 
+	// Handle data coming back from the server
+	socket.on('calendar-list', function(result) {
+		calendarNames = result.contents.calendarNames
+		calendarColours = result.contents.calendarColours
+		console.log("Names of calendars")
+		console.log(calendarNames)
 
+	});	
 
 	// Handle data coming back from the server
 	socket.on('calendar-events', function(result) {
-		var events = result.contents
+		var events = result.contents.events
+		var colourName = result.contents.calendarColours
 
 		console.log(events)
 	
-		var cntObj = $('#schedule-event-cnt')
+		// var cntObj = $('#schedule-event-cnt')
 		events.map((event, i) => {
 
 			// // to-do get obj list by class
@@ -155,17 +184,19 @@ $(document).ready(function() {
 								}
 			
 
-			var eventColours = eventStyles[i];
+			var eventColours = eventStyles[colourName];
 
-			eventsArr.push({time: piechartTime, title: eventTitle, desc: event.description, style: eventStyles[i]});
+			eventsArr.push({ mstime: event.start.dateTime, eventTime: eventTime, piechartTime: piechartTime, eventTitle: eventTitle, desc: event.description, style: eventColours});
+			
 
-			var eventDivHTMTL = 
-				`<div class=schedule-event id=event${i} style="background-color: ${eventColours[0]}" >
-					<div class="schedule-event-time" id="schedule-event-time-${i}" style="color: ${eventColours[1]}">${eventTime}</div>
-					<div class="schedule-event-title" id="schedule-event-title-${i}" style="color: ${eventColours[2]}">${eventTitle}</div>
-					<div class="schedule-event-desc" id="schedule-event-desc-${i}" style="display: none; color: ${eventColours[1]}">${event.description}</div>
-				</div>`
-			cntObj.append(eventDivHTMTL)
+
+			// var eventDivHTMTL = 
+			// 	`<div class=schedule-event id=event${i} style="background-color: ${eventColours.background}" >
+			// 		<div class="schedule-event-time" id="schedule-event-time-${i}" style="color: ${eventColours.time}">${eventTime}</div>
+			// 		<div class="schedule-event-title" id="schedule-event-title-${i}" style="color: ${eventColours.title}">${eventTitle}</div>
+			// 		<div class="schedule-event-desc" id="schedule-event-desc-${i}" style="display: none; color: ${eventTitle}">${event.description}</div>
+			// 	</div>`
+			// cntObj.append(eventDivHTMTL)
 
 			// var eventObj = $('#event' + i)
 
@@ -202,8 +233,10 @@ $(document).ready(function() {
 	});		  
 		
 
+	// to-do: use promises...getCalendarNames();
+	setTimeout(function() { getCalendarInfo(); }, 500);
 	setTimeout(function() { sendCalendarApiRequest(); sendWeatherApiRequest() }, 1000);
-	setTimeout(function() { google.charts.setOnLoadCallback(drawPieChart);}, 3000);
+	setTimeout(function() { populateEvents(); google.charts.setOnLoadCallback(drawPieChart); }, 3000);
 
 
 	
@@ -302,7 +335,25 @@ function convertToStringTime(hour, minutes) {
 	return hour + ':' + minutes
 }
 
+function propertySort(prop) {
+	return function(a, b) {
+		return (a[prop] < b[prop]) ? -1 : (a[prop] > b[prop]) ? 1 : 0;
+	}
+}
+function populateEvents() {
+	eventsArr.sort(propertySort('mstime'))
+	eventsArr.map((event, i) => {
+		var eventDivHTMTL = 
+		`<div class=schedule-event id=event${i} style="background-color: ${event.style.background}" >
+			<div class="schedule-event-time" id="schedule-event-time-${i}" style="color: ${event.style.time}">${event.eventTime}</div>
+			<div class="schedule-event-title" id="schedule-event-title-${i}" style="color: ${event.style.title}">${event.eventTitle}</div>
+			<div class="schedule-event-desc" id="schedule-event-desc-${i}" style="display: none; color: ${event.style.title}">${event.desc}</div>
+		</div>`
+	$('#schedule-event-cnt').append(eventDivHTMTL)
+	});
+}
 function drawPieChart() {
+	// eventsArr.sort(propertySort('mstime'))
 
 	console.log(eventsArr)
 
@@ -310,7 +361,7 @@ function drawPieChart() {
 	for (var i = 0; i < eventsArr.length; i++) {
 		console.log(eventsArr[i])
 		var event = eventsArr[i]
-		pieDataArr.push([event.title, event.time.length])
+		pieDataArr.push([event.eventTitle, event.piechartTime.length])
 	}
 
 	// var data = google.visualization.arrayToDataTable([
@@ -370,12 +421,24 @@ function sendCommand(message) {
 	
 }
 
+function getCalendarInfo() {
+	// socket.connected for v0.9	
+	if (socket.socket.connected) {
+		socket.emit('calendar-list');
+	} else {
+		console.log("no server connection");
+	}	
+}
+
 // sends request for device uptime
 function sendCalendarApiRequest() {
 
 	// socket.connected for v0.9	
 	if (socket.socket.connected) {
-		socket.emit('calendar');
+		for(var i = 0; i < calendarNames.length; i++) {
+			socket.emit('calendar', calendarNames[i]);
+		}
+
 		console.log("socket emmit calendar");
 	} else {
 		console.log("no server connection");
@@ -417,6 +480,7 @@ function updateSelectedEvent(dir) {
 	var numEvents = eventsArr.length;
 
 	var eventDescObj = $('#schedule-event-desc-' + selectedEvent)
+	// var eventColour = eventDescObj.css()
 	eventDescObj.css('display', 'none')
 
 

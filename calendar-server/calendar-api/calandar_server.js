@@ -10,9 +10,22 @@ var io;
 const fs = require('fs');
 const readline = require('readline');
 const {google} = require('googleapis');
+
+var requestedCalName = "";
 var eventsArr = []
 
 const SCOPES = ['https://www.googleapis.com/auth/calendar.readonly'];
+
+const calendarNames =  [ 'primary', 'School', 'Work' ];
+// const calendarIDs = [ 'primary', 'kbc988c62g18obt43iu7amuqs4@group.calendar.google.com']
+	// {}
+	// 'primary': 'primary',
+	// 'School': 'kbc988c62g18obt43iu7amuqs4@group.calendar.google.com'
+const calendarInfo = {
+		calendarNames: ['primary','School', 'Work'],
+		calendarIDs: ['primary', 'kbc988c62g18obt43iu7amuqs4@group.calendar.google.com', '79tfqktj43navjfosj04qcgc7o@group.calendar.google.com'],
+		calendarColours: ['blue', 'green', 'orange']
+	};
 
 
 // to-do: move these files somewhere safe
@@ -49,11 +62,12 @@ function handleWeatherApiRequest(socket) {
 
 
 function handleApiRequest(socket) {
-	socket.on('calendar', function(fileName) {
+	socket.on('calendar', function(calName) {
 		// DR. BRIAN'S NOTE: Very unsafe
 		// var absPath = "/proc/" + fileName
 		// console.log('accessing ' + absPath);
 		
+		requestedCalName =  calName 
 		var relPath = "calendar-api/credentials.json"
 
 		fs.exists(relPath, function(exists) {
@@ -61,11 +75,11 @@ function handleApiRequest(socket) {
 				// Can use 2nd param: 'utf8', 
 				fs.readFile(relPath, function(err, content) {
 					if (err) {
-						emitSocketData(socket, "credentials.json", 
+						emitSocketData(socket, 'calendar-events', "credentials.json", 
 								"ERROR: Unable to read file " + relPath);
 						return console.log('Error loading client secret file:', err);
 					} else {
-						authorize(JSON.parse(content), socket, listEvents);
+						authorize(JSON.parse(content), socket, calName, listEvents);
 
 						// // to-do:
 						// emitSocketData(socket, "credentials.json", 
@@ -73,11 +87,19 @@ function handleApiRequest(socket) {
 					}
 				});
 			} else {
-				emitSocketData(socket, "credentials.json", 
+				emitSocketData(socket, 'calendar-events', "credentials.json", 
 						"ERROR: File " + relPath + " not found.");
 			}
 		});
 	});
+	socket.on('calendar-list', function () {
+		// var calNames = calendarIDs.map(({ calName }) => calName)
+		// var calendarColours = calendarIDs.map(({ calendarColours }) => calendarColours)
+		// console.log(calNames)
+
+		var result = { calendarNames: calendarInfo.calendarNames, calendarColours: calendarInfo.calendarColours }
+		emitSocketData(socket, 'calendar-list', "list of calendars", result);
+	})
 };
 
 function emitSocketDataWeather(socket, apiMessage, contents) {
@@ -91,13 +113,13 @@ function emitSocketDataWeather(socket, apiMessage, contents) {
 
 
 
-function emitSocketData(socket, apiMessage, contents) {
+function emitSocketData(socket, socketEvent, apiMessage, contents) {
 	var result = {
 			api: apiMessage,
 			contents: contents
 	}
 
-	socket.emit('calendar-events', result);	
+	socket.emit(socketEvent, result);	
 }
 
 
@@ -107,7 +129,7 @@ function emitSocketData(socket, apiMessage, contents) {
  * @param {Object} credentials The authorization client credentials.
  * @param {function} callback The callback to call with the authorized client.
  */
-function authorize(credentials, socket, callback) {
+function authorize(credentials, socket, calName, callback) {
 	//   var client_id = "4026650730-aieul5jhkjuvupk0lpm8rkkcagrh8q6r.apps.googleusercontent.com"
 	//   var client_secret = "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"
 	const {client_secret, client_id, redirect_uris} = credentials.installed;
@@ -121,7 +143,7 @@ function authorize(credentials, socket, callback) {
 		oAuth2Client.setCredentials(JSON.parse(token));
 		// var events = callback(oAuth2Client, socket);
 		// return events
-		var events = callback(oAuth2Client, socket);
+		var events = callback(oAuth2Client, socket, calName);
 	});
 }
 
@@ -156,14 +178,21 @@ function getAccessToken(oAuth2Client, callback) {
 	});
 }
 
+
+
 /**
  * Lists the next 10 events on the user's primary calendar.
  * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
  */
-function listEvents(auth, socket) {
+function listEvents(auth, socket, calName) {
 	const calendar = google.calendar({version: 'v3', auth});
+	var cal_i = calendarNames.indexOf(calName)
+	var calID = calendarInfo.calendarIDs[cal_i];
+	var calColours = calendarInfo.calendarColours[cal_i];
+	console.log("CALENDAR ID: ", calID);
 	calendar.events.list({
-		calendarId: 'primary',
+		// calendarId: 'primary',
+		calendarId: calID,
 		timeMin: (new Date()).toISOString(),
 		maxResults: 10,
 		singleEvents: true,
@@ -180,10 +209,12 @@ function listEvents(auth, socket) {
 			console.log(eventsArr[i])
 		});
 
+		// console.log(calendar.calendarList.list())
+
 
 		// To-Do: use call-back to return events; 
 		
-		emitSocketData(socket, "calendar-events", events);
+		emitSocketData(socket, 'calendar-events', "events from requested calendar", {calendarName: calName, events: events, calendarColours: calColours});
 
 		// return events
 		// emitSocketData(socket, message, events);
