@@ -31,16 +31,16 @@ const eventStyles = {
 	// title, time, background
 	// red
 	"red": {
-		"title": "rgba(146,0,0,1)", "time" : "rgba(146,0,0,0.8)", "background": "rgba(176,0,0,0.1);"
+		"title": "rgb(255, 255, 255)", "time" : "rgb(255, 186, 164)", "background": "rgb(255, 61, 0);"
 	},
 	// green
-	"green": {"title" : "rgba(0,146,0,1)", "time" : "rgba(0,146,0,0.8)", "background" : "rgba(0,176,0,0.15);"
+	"green": {"title": "rgb(255, 255, 255)", "time" : "rgb(247 255 239);", "background" : "rgb(55, 209, 47);"
 	},
 	// orange
-	"orange": {"title" : "rgb(198,135,5)", "time" : "rgba(166,112,0,0.8)", "background" : "rgba(244,196,29,0.2);"
+	"orange": {"title": "rgb(255, 255, 255)", "time" : "rgb(255, 244, 200)", "background" : "rgba(255,160,34,1);"
 	},
 	// blue
-	"blue": {"title" : "rgba(0,147,187,1)", "time" : "rgba(0,147,187,0.8)", "background" : "rgba(9, 167, 207,0.1);"
+	"blue": {"title": "rgb(255, 255, 255)", "time" : "rgb(188, 243, 255)", "background" : "rgb(14, 165, 255);"
 	}
 }
 
