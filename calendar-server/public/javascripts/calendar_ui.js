@@ -31,16 +31,16 @@ const eventStyles = {
 	// title, time, background
 	// red
 	"red": {
-		"title": "rgb(255, 255, 255)", "time" : "rgb(255, 186, 164)", "background": "rgb(255, 61, 0);"
+		"title": "rgb(255, 255, 255)", "time" : "rgb(255, 186, 164)", "background": "rgb(255, 61, 0)"
 	},
 	// green
-	"green": {"title": "rgb(255, 255, 255)", "time" : "rgb(247 255 239);", "background" : "rgb(55, 209, 47);"
+	"green": {"title": "rgb(255, 255, 255)", "time" : "rgb(247 255 239)", "background" : "rgb(55, 209, 47)"
 	},
 	// orange
-	"orange": {"title": "rgb(255, 255, 255)", "time" : "rgb(255, 244, 200)", "background" : "rgba(255,160,34,1);"
+	"orange": {"title": "rgb(255, 255, 255)", "time" : "rgb(255, 244, 200)", "background" : "rgb(255,160,34)"
 	},
 	// blue
-	"blue": {"title": "rgb(255, 255, 255)", "time" : "rgb(188, 243, 255)", "background" : "rgb(14, 165, 255);"
+	"blue": {"title": "rgb(255, 255, 255)", "time" : "rgb(188, 243, 255)", "background" : "rgb(14, 165, 255)"
 	}
 }
 
@@ -67,12 +67,17 @@ const eventStyles = {
 
 
 
-var eventsArr = []
+var eventsArr = { 
+	AM : [],
+	PM: []
+}
 var selectedEvent = 0;
 // var eventsTitle = []
 
 var calendarNames = [];
 var calendarColours = [];
+
+var timePeriod = "AM";
 
 // on keypress
 $(document).keypress(function(e) {
@@ -176,17 +181,30 @@ $(document).ready(function() {
 			var eventTitle = event.summary
 
 			// convert 1hr == 60 min time to 1hr == 100 
-			var startTime24 = parseInt(startHour) + (startMin/60);
-			var endTime24 = parseInt(endHour) + (endMin/60);
-			console.log("startTime24: ", startTime24, " endTime24: ", endTime24)
-			var piechartTime = {start: startTime24,
-								length: Math.abs(endTime24 - startTime24) 
+			var startTime12 = parseInt(t24to12Hour(startHour)) + (startMin/60);
+			var endTime12 = parseInt(t24to12Hour(endHour)) + (endMin/60);
+			
+			// if (timePeriod == "PM") {
+			// 	if (endTime12 < 12) {
+			// 		endTime12 = 24
+			// 	}
+			// 	startTime12 -= 12;
+			// 	endTime12 -= 12;
+			// }
+			console.log("startTime12: ", startTime12, " endTime12: ", endTime12)
+			var pieChartTime = {start: startTime12,
+								end: endTime12,
+								length: Math.abs(endTime12 - startTime12) 
 								}
 			
 
 			var eventColours = eventStyles[colourName];
 
-			eventsArr.push({ mstime: event.start.dateTime, eventTime: eventTime, piechartTime: piechartTime, eventTitle: eventTitle, desc: event.description, style: eventColours});
+
+			var eventPeriodList = (timePeriod == "AM") ? eventsArr['AM'] : eventsArr['PM']
+			eventPeriodList.push({ mstime: event.start.dateTime, eventTime: eventTime, pieChartTime: pieChartTime, 
+				eventTitle: eventTitle, desc: event.description, 
+				style: eventColours, colourName: colourName});
 			
 
 
@@ -289,6 +307,19 @@ function sendWeatherApiRequest() {
 }
 
 
+function t24to12Hour(hour) {
+	if (hour < 12) {
+		if (hour == 0) {
+			hour = 12;
+		}	
+	} else {
+		if (hour > 12) {
+			hour -= 12;
+		}
+	}	
+	return hour
+}
+
 function getLocalDate() {
     var localDate = new Date();
     var weekday = weekDays[localDate.getDay()];
@@ -298,17 +329,19 @@ function getLocalDate() {
     var min = localDate.getMinutes(); //returns value 0-59 for the current minute of the hour
 
 
-	// if (hour < 12) {
-	// 	$('#time-period').text("AM");
-	// 	if (hour == 0) {
-	// 		hour = 12;
-	// 	}	
-	// } else {
-	// 	$('#time-period').text("PM");
-	// 	if (hour > 12) {
-	// 		hour -= 12;
-	// 	}
-	// }
+	if (hour < 12) {
+		$('#time-period').text("AM");
+		if (hour == 0) {
+			hour = 12;
+		}	
+		timePeriod = "AM";
+	} else {
+		$('#time-period').text("PM");
+		if (hour > 12) {
+			hour -= 12;
+		}
+		timePeriod = "PM";
+	}
 
 	// if (min < 10) { 
 	// 	min = '0' + String(min);
@@ -324,6 +357,8 @@ function getLocalDate() {
 }
 
 function convertToStringTime(hour, minutes) {
+	hour = t24to12Hour(hour)
+
 	if (hour < 10) {
 		hour = '0' + String(hour);
 	}
@@ -341,8 +376,9 @@ function propertySort(prop) {
 	}
 }
 function populateEvents() {
-	eventsArr.sort(propertySort('mstime'))
-	eventsArr.map((event, i) => {
+	var eventPeriodList = (timePeriod == "AM") ? eventsArr['AM'] : eventsArr['PM']
+	eventPeriodList.sort(propertySort('mstime'))
+	eventPeriodList.map((event, i) => {
 		var eventDivHTMTL = 
 		`<div class=schedule-event id=event${i} style="background-color: ${event.style.background}" >
 			<div class="schedule-event-time" id="schedule-event-time-${i}" style="color: ${event.style.time}">${event.eventTime}</div>
@@ -355,14 +391,48 @@ function populateEvents() {
 function drawPieChart() {
 	// eventsArr.sort(propertySort('mstime'))
 
+
+
 	console.log(eventsArr)
 
 	var pieDataArr = [['Events', 'Time']];
-	for (var i = 0; i < eventsArr.length; i++) {
-		console.log(eventsArr[i])
-		var event = eventsArr[i]
-		pieDataArr.push([event.eventTitle, event.piechartTime.length])
-	}
+	var sliceColours = {};
+
+	var eventPeriodList = (timePeriod == "AM") ? eventsArr['AM'] : eventsArr['PM']
+
+	var j = 0;
+	// fill pieDataArr from hour 0 to 12
+	var pieHour = 0;
+	eventPeriodList.map((event, i) => {
+		var currStart = event.pieChartTime.start;
+		console.log("piechart start: ", pieHour, "event start: ", currStart)
+		if (currStart > pieHour) {
+			pieDataArr.push(["Blank Slot", currStart - pieHour ]);
+			sliceColours[j] = { color: 'transparent' };
+			j++;
+		}
+		pieDataArr.push([event.eventTitle, event.pieChartTime.length]);
+		sliceColours[j] = { color: event.style.background};
+		j++;
+		pieHour = event.pieChartTime.end;
+	});
+
+	console.log(pieDataArr)
+
+	// // fill pieDataArr from hour 0 to 12
+	// var pieHour = 0;
+	// var i = 0; 
+	// while (pieHour < 12) {
+	// 	var currEvent = eventPeriodList[i]
+	// 	var currStart = currEvent.pieChartTime.start;
+	// 	if (currStart < pieHour) {
+	// 		pieDataArr.push(["Blank Slot", currStart - pieHour ]);
+	// 		sliceColours[i] = { color: 'transparent' };
+	// 	}
+	// 	pieDataArr.push([currEvent.eventTitle, currStart]);
+	// 	sliceColours[i] = { color: currEvent.style.background};
+	// 	pieHour =
+	// }
 
 	// var data = google.visualization.arrayToDataTable([
 	// 	['Events', 'Hours'],
@@ -384,23 +454,38 @@ function drawPieChart() {
 	  var width = $('#piechart').width();
 
 	  $('#schedule-cnt').height(height);
-
-
+	//   $('#schedule-cnt').width(height);
+	$('#piechart').height(width);
 	  console.log(typeof(height));
 	  console.log(height + ' ' + width);
 
 	  var options = {
 		legend: 'none',
+		chart: {
+			title: 'Company Performance',
+			subtitle: 'Sales, Expenses, and Profit: May-August'
+		  },
 		chartArea: { 
+			// backgroundColor: {stroke: 'red', strokeWidth: 2},
+			// 'backgroundColor': {
+			// 	'fill': '#F4F4F4',
+			// 	'opacity': 100
+			//  },
 			height: 1000,
-			top: 0, 
+			top: 5, 
 			left: 5,
-			right: 5
+			right: 5,
 		},
-		height: height + 100,
-		pieSliceText : 'none'
+		// chartArea: { backgroundColor: '#f1f7f9' },
+		// height: height + 100,
+		pieSliceText : 'none',
+		slices: sliceColours,
+		backgroundColor: 'none',
+		
 
 	  };
+	  
+
 
 	  var chart = new google.visualization.PieChart(document.getElementById('piechart'));
 
@@ -433,10 +518,13 @@ function getCalendarInfo() {
 // sends request for device uptime
 function sendCalendarApiRequest() {
 
+	var startHour = (timePeriod == "AM") ? 0 : 12;
+	var endHour = (timePeriod == "AM") ? [12, 0] : [23, 59];
+
 	// socket.connected for v0.9	
 	if (socket.socket.connected) {
 		for(var i = 0; i < calendarNames.length; i++) {
-			socket.emit('calendar', calendarNames[i]);
+			socket.emit('calendar-events', { calendarName: calendarNames[i], startHour: startHour, endHour: endHour});
 		}
 
 		console.log("socket emmit calendar");

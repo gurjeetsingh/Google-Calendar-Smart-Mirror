@@ -62,7 +62,7 @@ function handleWeatherApiRequest(socket) {
 
 
 function handleApiRequest(socket) {
-	socket.on('calendar', function(calName) {
+	socket.on('calendar-events', function(calName) {
 		// DR. BRIAN'S NOTE: Very unsafe
 		// var absPath = "/proc/" + fileName
 		// console.log('accessing ' + absPath);
@@ -184,16 +184,26 @@ function getAccessToken(oAuth2Client, callback) {
  * Lists the next 10 events on the user's primary calendar.
  * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
  */
-function listEvents(auth, socket, calName) {
+function listEvents(auth, socket, calInfo) {
 	const calendar = google.calendar({version: 'v3', auth});
-	var cal_i = calendarNames.indexOf(calName)
+	var cal_i = calendarNames.indexOf(calInfo.calendarName)
 	var calID = calendarInfo.calendarIDs[cal_i];
 	var calColours = calendarInfo.calendarColours[cal_i];
 	console.log("CALENDAR ID: ", calID);
+
+	var startHour = calInfo.startHour;
+	var endHour = calInfo.endHour;
+	var startDate = new Date();
+	var endDate = new Date();
+	console.log(startDate, " ",endDate)
+	startDate.setHours(startHour)
+	endDate.setHours(endHour[0], endHour[1])
 	calendar.events.list({
 		// calendarId: 'primary',
 		calendarId: calID,
-		timeMin: (new Date()).toISOString(),
+		// timeMin: (new Date()).toISOString(),
+		timeMin: startDate.toISOString(),
+		timeMax: endDate.toISOString(),
 		maxResults: 10,
 		singleEvents: true,
 		orderBy: 'startTime',
@@ -201,7 +211,7 @@ function listEvents(auth, socket, calName) {
 		if (err) return console.log('The API returned an error: ' + err);
 		const events = res.data.items;
 		if (events.length) {
-		console.log('Upcoming 10 events:');
+		console.log(' Events from: ', startHour,  'o\'clock');
 		events.map((event, i) => {
 			const start = event.start.dateTime || event.start.date;
 			const end = event.end.dateTime || event.end.date
@@ -214,7 +224,7 @@ function listEvents(auth, socket, calName) {
 
 		// To-Do: use call-back to return events; 
 		
-		emitSocketData(socket, 'calendar-events', "events from requested calendar", {calendarName: calName, events: events, calendarColours: calColours});
+		emitSocketData(socket, 'calendar-events', "events from requested calendar", {calendarName: calInfo.calendarName, events: events, calendarColours: calColours});
 
 		// return events
 		// emitSocketData(socket, message, events);

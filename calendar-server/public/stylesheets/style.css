@@ -200,6 +200,10 @@ h1 {
     padding: 5% 0 0 1%;
 }
 
+#piechart {
+	background-color: antiquewhite;
+    border-radius: 50em;
+}
 
 #status-box {
 	float: right;
