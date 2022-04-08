@@ -405,6 +405,7 @@ function drawPieChart() {
 			j++;
 		}
 		if (i == 0) {
+			// to-do: select the first upcoming event
 			selectedSlice = j;
 		}
 		pieDataArr.push([event.eventTitle, event.pieChartTime.length]);
