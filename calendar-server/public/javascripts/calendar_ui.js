@@ -90,6 +90,8 @@ var sliceColours;
 var options;
 var chartData;
 
+var localTime12;
+
 // on keypress
 $(document).keypress(function(e) {
 	console.log(e)
@@ -321,10 +323,16 @@ function getLocalDate() {
     var hour = localDate.getHours(); //returns value 0-23 for the current hour
     var min = localDate.getMinutes(); //returns value 0-59 for the current minute of the hour
 
+	console.log(hour)
+	
+
+	
+	console.log("LOCAL TIME 12", localTime12);
 
 	if (hour < 12) {
 		$('#time-period').text("AM");
 		if (hour == 0) {
+			localTime12 = parseInt(hour) + (min/60);
 			hour = 12;
 		}	
 		timePeriod = "AM";
@@ -332,9 +340,12 @@ function getLocalDate() {
 		$('#time-period').text("PM");
 		if (hour > 12) {
 			hour -= 12;
+			localTime12 = parseInt(hour) + (min/60);
 		}
 		timePeriod = "PM";
 	}
+
+	
 
 	// if (min < 10) { 
 	// 	min = '0' + String(min);
@@ -395,6 +406,7 @@ function drawPieChart() {
 
 	var j = 0;
 	// fill pieDataArr from hour 0 to 12
+	var bestSlice = false;
 	var pieHour = 0;
 	eventPeriodList.map((event, i) => {
 		var currStart = event.pieChartTime.start;
@@ -408,8 +420,17 @@ function drawPieChart() {
 			// to-do: select the first upcoming event
 			selectedSlice = j;
 		}
+		var currEnd = event.pieChartTime.end;
+
 		pieDataArr.push([event.eventTitle, event.pieChartTime.length]);
 		sliceColours[j] = { color: event.style.background};
+		if(currEnd > localTime12 && !bestSlice) {
+			selectedSlice = j;
+			bestSlice = true;
+			sliceColours[j] = { color: event.style["background-active"]};
+			selectedEvent = i;
+			$(`#event${selectedEvent}`).css('background-color', event.style["background-active"]);
+		}
 		j++;
 		pieHour = event.pieChartTime.end;
 	});
