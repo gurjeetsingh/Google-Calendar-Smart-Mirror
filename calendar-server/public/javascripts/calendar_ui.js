@@ -65,7 +65,7 @@ const eventStyles = {
 // }
 
 
-
+var chart;
 
 var eventsArr = { 
 	AM : [],
@@ -78,6 +78,8 @@ var calendarNames = [];
 var calendarColours = [];
 
 var timePeriod = "AM";
+
+var pieDataArr;
 
 // on keypress
 $(document).keypress(function(e) {
@@ -93,6 +95,8 @@ $(document).keypress(function(e) {
 		console.log("s key pressed");
 		updateSelectedEvent("down");
 	}
+	// chart.setSelection([e]);
+	// google.visualization.events.trigger(this, 'select', {});
 });
 
 // Make connection to server when web page is fully loaded.
@@ -395,7 +399,7 @@ function drawPieChart() {
 
 	console.log(eventsArr)
 
-	var pieDataArr = [['Events', 'Time']];
+	pieDataArr = [['Events', 'Time']];
 	var sliceColours = {};
 
 	var eventPeriodList = (timePeriod == "AM") ? eventsArr['AM'] : eventsArr['PM']
@@ -419,32 +423,9 @@ function drawPieChart() {
 
 	console.log(pieDataArr)
 
-	// // fill pieDataArr from hour 0 to 12
-	// var pieHour = 0;
-	// var i = 0; 
-	// while (pieHour < 12) {
-	// 	var currEvent = eventPeriodList[i]
-	// 	var currStart = currEvent.pieChartTime.start;
-	// 	if (currStart < pieHour) {
-	// 		pieDataArr.push(["Blank Slot", currStart - pieHour ]);
-	// 		sliceColours[i] = { color: 'transparent' };
-	// 	}
-	// 	pieDataArr.push([currEvent.eventTitle, currStart]);
-	// 	sliceColours[i] = { color: currEvent.style.background};
-	// 	pieHour =
-	// }
-
-	// var data = google.visualization.arrayToDataTable([
-	// 	['Events', 'Hours'],
-	// 	['Work',     11],
-	// 	['Eat',      2],
-	// 	['Commute',  2],
-	// 	['Watch TV', 2],
-	// 	['Sleep',    7]
-	//   ]);
-
 	var data = google.visualization.arrayToDataTable(pieDataArr);
 
+	
 
 
 	console.log("og height");
@@ -462,20 +443,22 @@ function drawPieChart() {
 	  var options = {
 		legend: 'none',
 		chart: {
-			title: 'Company Performance',
-			subtitle: 'Sales, Expenses, and Profit: May-August'
+			title: 'time',
+			subtitle: 'is a valuable thing'
 		  },
 		chartArea: { 
-			// backgroundColor: {stroke: 'red', strokeWidth: 2},
+			backgroundColor: {stroke: 'red', strokeWidth: 2},
 			// 'backgroundColor': {
 			// 	'fill': '#F4F4F4',
 			// 	'opacity': 100
 			//  },
 			height: 1000,
-			top: 5, 
-			left: 5,
-			right: 5,
+			top: 10, 
+			left:10,
+			right: 10,
 		},
+		tooltip:{trigger : 'selection', isHtml: true, text: 'none', width: 20, textStyle: { fontSize: 18,
+		bold: true}},
 		// chartArea: { backgroundColor: '#f1f7f9' },
 		// height: height + 100,
 		pieSliceText : 'none',
@@ -485,14 +468,103 @@ function drawPieChart() {
 
 	  };
 	  
-
-
-	  var chart = new google.visualization.PieChart(document.getElementById('piechart'));
-
+	  var pieChartElement = document.getElementById('piechart')
+	  chart = new google.visualization.PieChart(pieChartElement);
+      // Wait for the chart to finish drawing before calling the getImageURI() method.
+      google.visualization.events.addListener(chart, 'select', function () {
+        // pieChartElement.innerHTML = '<img src="' + chart.getImageURI() + '">';
+		// chart.setSelection([{row: 1, column: null}]);
+		// chart.draw(data, options);
+		console.log('select trig')
+      });
 	  chart.draw(data, options);
 }
 
 
+	// var pieChart;
+	// function drawPieChart() {
+	//   // Create and populate the data table.
+	//   var data = new google.visualization.DataTable();
+	//   data.addColumn('string', 'Task');
+	//   data.addColumn('number', 'Hours per Day');
+
+	//   var sliceColours = {};
+
+	//   var eventPeriodList = (timePeriod == "AM") ? eventsArr['AM'] : eventsArr['PM']
+  
+	//   var j = 0;
+	//   var pieHour = 0;
+	//   // fill pieDataArr from hour 0 to 12
+	// //   data.addRows(eventPeriodList.length + 5);
+	// //   eventPeriodList.map((event, i) => {
+	// // 	  var currStart = event.pieChartTime.start;
+	// // 	  console.log("piechart start: ", pieHour, "event start: ", currStart)
+	// // 	  if (currStart > pieHour) {
+	// // 		//   pieDataArr.push(["Blank Slot", currStart - pieHour ]);
+
+	// // 		  sliceColours[j] = { color: 'transparent' };
+	// // 		  data.setValue(j, 0, 'blankslot');
+	// // 		  data.setValue(j, 1, currStart - pieHour);
+	// // 		  j++;
+	// // 	  }
+	// // 	//   pieDataArr.push([event.eventTitle, event.pieChartTime.length]);
+	// // 	  sliceColours[j] = { color: event.style.background};
+	// // 	  data.setValue(j, 0, event.eventTitle);
+	// // 	  data.setValue(j, 1, currStart - pieHour);
+	// // 	  j++;
+	// // 	  pieHour = event.pieChartTime.end;
+	// //   });
+  
+	//   data.addRows(5);
+	//   data.setValue(0, 0, 'Work');
+	//   data.setValue(0, 1, 11);
+	//   data.setValue(1, 0, 'Eat');
+	//   data.setValue(1, 1, 2);
+	//   data.setValue(2, 0, 'Commute');
+	//   data.setValue(2, 1, 2);
+	//   data.setValue(3, 0, 'Watch TV');
+	//   data.setValue(3, 1, 2);
+	//   data.setValue(4, 0, 'Sleep');
+	//   data.setValue(4, 1, 7);
+
+	//   // Create and draw the visualization.
+	//   pieChart = new google.visualization.PieChart(document.getElementById('piechart'));
+	//   pieChart.draw(data, {legend:'none'});
+	//   google.visualization.events.addListener(pieChart, 'ready', 
+	// 	readyTest);  
+	// }
+	// function readyTest(){
+	//   pieChart.setSelection([{row:0}]);
+	// }
+
+// 	var pieChart;
+// 	function drawPieChart() {
+// 	  // Create and populate the data table.
+// 	  var data = new google.visualization.DataTable();
+// 	  data.addColumn('string', 'Task');
+// 	  data.addColumn('number', 'Hours per Day');
+// 	  data.addRows(5);
+// 	  data.setValue(0, 0, 'Work');
+// 	  data.setValue(0, 1, 11);
+// 	  data.setValue(1, 0, 'Eat');
+// 	  data.setValue(1, 1, 2);
+// 	  data.setValue(2, 0, 'Commute');
+// 	  data.setValue(2, 1, 2);
+// 	  data.setValue(3, 0, 'Watch TV');
+// 	  data.setValue(3, 1, 2);
+// 	  data.setValue(4, 0, 'Sleep');
+// 	  data.setValue(4, 1, 7);
+
+// 	  // Create and draw the visualization.
+// 	  pieChart = new 
+// google.visualization.PieChart(document.getElementById('piechart'));
+// 	  pieChart.draw(data);
+// 	  google.visualization.events.addListener(pieChart, 'ready', 
+// readyTest);  
+// 	}
+// 	function readyTest(){
+// 	  pieChart.setSelection([{row:0}]);
+// 	}
 
 // sends command to server for status updates and commands for bbb
 function sendCommand(message) {
@@ -565,28 +637,62 @@ function convertMsToTime(milliseconds) {
 }
   
 function updateSelectedEvent(dir) {
-	var numEvents = eventsArr.length;
+	var eventPeriodList = (timePeriod == "AM") ? eventsArr['AM'] : eventsArr['PM']
+	var numEvents = eventPeriodList.length;
 
 	var eventDescObj = $('#schedule-event-desc-' + selectedEvent)
+	// var piechartObj = $('#piechart')
 	// var eventColour = eventDescObj.css()
 	eventDescObj.css('display', 'none')
 
+	// chart.setSelection([{row: selectedEvent+1, column: null}]);
+	// var pieChartElement = document.getElementById('piechart')
+	// console.log(pieChartElement)
+	// var pieSliceElements = pieChartElement.getElementsByTagName('g')
+	// console.log(pieSliceElements[1])
 
+	// var sliceObjs = $('g');
+
+	// sliceObjs.each(function(index, obj){
+	// 	console.log(obj);
+	// });
+
+	// console.log("slices")
+	// console.log(sliceObjs)
+	// console.log($('g'))
+
+	// console.log(sliceObjs[1])
+
+	
+	
+	var nextEvent = selectedEvent;
 	if (dir === 'up') {
-		selectedEvent = (selectedEvent+numEvents-1) % numEvents; 
+		nextEvent = selectedEvent+numEvents-1
+		
 	} else if (dir === 'down') {
-		selectedEvent = (selectedEvent+1) % numEvents;
+		nextEvent = selectedEvent+1
 	}
-	// var event = eventsArr[selectedEvent]
-	// console.log('selected event #' + selectedEvent);
-	// var eventColours = eventStyles[selectedEvent];
-	// var eventObj = $('#event' + selectedEvent)
-	// var eventDescDivHTMTL = 
-	// 	`<div class="schedule-event-desc" id="schedule-event-desc-${selectedEvent}" style="color: ${eventColours[1]}">${event.desc}</div>`
-	// eventObj.append(eventDescDivHTMTL)
+	selectedEvent = (nextEvent) % numEvents; 
 
 	eventDescObj = $('#schedule-event-desc-' + selectedEvent)
+
+	console.log('selected event #schedule-event-desc-' + selectedEvent)
 	eventDescObj.css('display', 'revert')
+	console.log(pieDataArr)
+
+	var j = 0;
+	for(var i = 1; i < pieDataArr.length; i++) {
+		if (pieDataArr[i][0] != "Blank Slot") {
+			j++;
+		}
+		
+		if(j == selectedEvent+1) {
+			console.log("next slice ", i)
+			console.log("non blanks ", j)
+			chart.setSelection([{row: i-1, column: null}]);
+			break;
+		}
+	}
 }
 
 function displayError(message) {
