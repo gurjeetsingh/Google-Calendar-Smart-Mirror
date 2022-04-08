@@ -31,16 +31,20 @@ const eventStyles = {
 	// title, time, background
 	// red
 	"red": {
-		"title": "rgb(255, 255, 255)", "time" : "rgb(255, 186, 164)", "background": "rgb(255, 61, 0)"
+		"title": "rgb(255, 255, 255)", "time" : "rgb(255, 186, 164)", 
+		"background-active": "rgb(255, 61, 0)"   , "background": "#FFC14D" 
 	},
 	// green
-	"green": {"title": "rgb(255, 255, 255)", "time" : "rgb(247 255 239)", "background" : "rgb(55, 209, 47)"
+	"green": {"title": "rgb(255, 255, 255)", "time" : "rgb(247 255 239)", 
+	"background-active" : "#37D12F" , "background":     "#9fe99b"
 	},
 	// orange
-	"orange": {"title": "rgb(255, 255, 255)", "time" : "rgb(255, 244, 200)", "background" : "rgb(255,160,34)"
+	"orange": {"title": "rgb(255, 255, 255)", "time" : "rgb(255, 244, 200)",
+	 "background-active" : "#ffa022"  , "background": "#ffcd71"     
 	},
 	// blue
-	"blue": {"title": "rgb(255, 255, 255)", "time" : "rgb(188, 243, 255)", "background" : "rgb(14, 165, 255)"
+	"blue": {"title": "rgb(255, 255, 255)", "time" : "rgb(188, 243, 255)",
+	 "background-active" : "#00A0FF", "background": "#71caff"      
 	}
 }
 
@@ -72,6 +76,7 @@ var eventsArr = {
 	PM: []
 }
 var selectedEvent = 0;
+var selectedSlice = 0;
 // var eventsTitle = []
 
 var calendarNames = [];
@@ -80,6 +85,10 @@ var calendarColours = [];
 var timePeriod = "AM";
 
 var pieDataArr;
+var sliceColours;
+
+var options;
+var chartData;
 
 // on keypress
 $(document).keypress(function(e) {
@@ -209,26 +218,6 @@ $(document).ready(function() {
 			eventPeriodList.push({ mstime: event.start.dateTime, eventTime: eventTime, pieChartTime: pieChartTime, 
 				eventTitle: eventTitle, desc: event.description, 
 				style: eventColours, colourName: colourName});
-			
-
-
-			// var eventDivHTMTL = 
-			// 	`<div class=schedule-event id=event${i} style="background-color: ${eventColours.background}" >
-			// 		<div class="schedule-event-time" id="schedule-event-time-${i}" style="color: ${eventColours.time}">${eventTime}</div>
-			// 		<div class="schedule-event-title" id="schedule-event-title-${i}" style="color: ${eventColours.title}">${eventTitle}</div>
-			// 		<div class="schedule-event-desc" id="schedule-event-desc-${i}" style="display: none; color: ${eventTitle}">${event.description}</div>
-			// 	</div>`
-			// cntObj.append(eventDivHTMTL)
-
-			// var eventObj = $('#event' + i)
-
-			// eventObj.append('<div class=schedule-event-title id=schedule-event-title-"' + i +'">' + eventsTitle[i] + '</div>')
-			// var back = ["#1abc9c", "#2ecc71", "#3498db", "#9b59b6", "#f1c40f", "#e67e22", "#e67e22"];
-			// for(let i = 5; i < events.length+5; i++) {
-			// 	var rand = back[Math.floor(Math.random() * back.length)];
-			// 	eventObj.css('background',rand)
-			// }
-			// i++
 			
 		  });
 	});	
@@ -400,7 +389,7 @@ function drawPieChart() {
 	console.log(eventsArr)
 
 	pieDataArr = [['Events', 'Time']];
-	var sliceColours = {};
+	sliceColours = {};
 
 	var eventPeriodList = (timePeriod == "AM") ? eventsArr['AM'] : eventsArr['PM']
 
@@ -415,6 +404,9 @@ function drawPieChart() {
 			sliceColours[j] = { color: 'transparent' };
 			j++;
 		}
+		if (i == 0) {
+			selectedSlice = j;
+		}
 		pieDataArr.push([event.eventTitle, event.pieChartTime.length]);
 		sliceColours[j] = { color: event.style.background};
 		j++;
@@ -423,7 +415,7 @@ function drawPieChart() {
 
 	console.log(pieDataArr)
 
-	var data = google.visualization.arrayToDataTable(pieDataArr);
+	chartData = google.visualization.arrayToDataTable(pieDataArr);
 
 	
 
@@ -440,7 +432,7 @@ function drawPieChart() {
 	  console.log(typeof(height));
 	  console.log(height + ' ' + width);
 
-	  var options = {
+	  options = {
 		legend: 'none',
 		chart: {
 			title: 'time',
@@ -474,10 +466,12 @@ function drawPieChart() {
       google.visualization.events.addListener(chart, 'select', function () {
         // pieChartElement.innerHTML = '<img src="' + chart.getImageURI() + '">';
 		// chart.setSelection([{row: 1, column: null}]);
-		// chart.draw(data, options);
+		// chart.draw(chartData, options);
 		console.log('select trig')
+
+
       });
-	  chart.draw(data, options);
+	  chart.draw(chartData, options);
 }
 
 
@@ -645,6 +639,18 @@ function updateSelectedEvent(dir) {
 	// var eventColour = eventDescObj.css()
 	eventDescObj.css('display', 'none')
 
+
+	
+	chart.setSelection([{row: selectedSlice, column: null}]);
+	var newColour = eventPeriodList[selectedEvent].style["background"];
+	console.log('old color', sliceColours[selectedSlice]);
+	console.log('new color', newColour)
+	sliceColours[selectedSlice] = {color: newColour};
+	console.log(sliceColours)
+	options.slices = sliceColours;
+
+	$(`#event${selectedEvent}`).css('background-color', newColour);
+
 	// chart.setSelection([{row: selectedEvent+1, column: null}]);
 	// var pieChartElement = document.getElementById('piechart')
 	// console.log(pieChartElement)
@@ -665,14 +671,14 @@ function updateSelectedEvent(dir) {
 
 	
 	
-	var nextEvent = selectedEvent;
+	
 	if (dir === 'up') {
-		nextEvent = selectedEvent+numEvents-1
+		selectedEvent = selectedEvent+numEvents-1
 		
 	} else if (dir === 'down') {
-		nextEvent = selectedEvent+1
+		selectedEvent = selectedEvent+1
 	}
-	selectedEvent = (nextEvent) % numEvents; 
+	selectedEvent = (selectedEvent) % numEvents; 
 
 	eventDescObj = $('#schedule-event-desc-' + selectedEvent)
 
@@ -690,9 +696,21 @@ function updateSelectedEvent(dir) {
 			console.log("next slice ", i)
 			console.log("non blanks ", j)
 			chart.setSelection([{row: i-1, column: null}]);
+			selectedSlice = i-1;
 			break;
 		}
 	}
+	chart.setSelection([{row: selectedSlice, column: null}]);
+	newColour = eventPeriodList[selectedEvent].style["background-active"];
+	console.log('old color', sliceColours[selectedSlice]);
+	console.log('new color', newColour)
+	sliceColours[selectedSlice] = {color: newColour};
+
+	$(`#event${selectedEvent}`).css('background-color', newColour);
+
+	console.log(sliceColours)
+	options.slices = sliceColours;
+	chart.draw(chartData, options);
 }
 
 function displayError(message) {

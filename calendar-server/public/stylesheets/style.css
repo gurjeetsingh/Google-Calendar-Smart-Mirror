@@ -178,7 +178,7 @@ h1 {
 }
 
 .schedule-event-desc {
-	font-size: 0.8em;
+	font-size: 1.1em;
 	padding: 0.2em 0.5em;
 }
 
@@ -195,28 +195,16 @@ h1 {
 	vertical-align: top;
 	border-style: none;
  
-	width: 58%;
+	width: 50%;
     margin: 0;
     padding: 5% 0 0 1%;
 }
 
 #piechart {
-	background-color: antiquewhite;
+	background-color: #f3f3f3;
     border-radius: 50em;
 }
 
-#status-box {
-	float: right;
-	width: 250px;
-	margin-right: 2em;
-	min-height: 200pt;
-	border-radius: 0.5em;
-	background-color: #f3f3f3;
-	padding: 2em;
-	right: 0;
-	overflow:hidden;
-
-}
 
 #left-box {
 	flex:1;
