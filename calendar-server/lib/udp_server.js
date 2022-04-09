@@ -60,7 +60,7 @@ function handleCommand(socket) {
 		client.on('listening', function () {
 			var address = client.address();
 			errorTimer = setTimeout(function() {
-				socket.emit('error', "error bbb");
+				socket.emit('error', "error bbb2");
 			}, 1000);
 
 		});

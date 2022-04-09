@@ -107,7 +107,7 @@ void* UDP_listen(void* arg) {
         switch (cmd) {
 	        case POT: ;
 				
-				sprintf(messageTx, "sector %d", getSelectedSector());
+				sprintf(messageTx, "pot %d", getSelectedSector());
 				printf("sector is %d\n", getSelectedSector());
 				sendto( socketDescriptor,
 						messageTx, strlen(messageTx),
@@ -131,6 +131,7 @@ void* UDP_listen(void* arg) {
 
 	// Close
 	close(socketDescriptor);
+
 
     pthread_exit(0);
 }

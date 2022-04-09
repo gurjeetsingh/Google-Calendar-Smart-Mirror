@@ -17,23 +17,23 @@ int main()
 
 	nightLightInit();
 	// create thread to play audio
-	AudioMixer_init();
+	//AudioMixer_init();
 	sleep(2);
 
 	// create threads to receive inputs from user
 	// and send commands to device
-	Drum_init();
-    Zencape_startSampling();
+	//Drum_init();
+    //Zencape_startSampling();
 	UDP_start();
 
-	sleep(10000000);
+	sleep(120);
 
 	// device clean up and join threads
 	nightLightStop();
 	UDP_stop();
-	Zencape_stopSampling();
-	Drum_stop();
-	AudioMixer_cleanup();
+	//Zencape_stopSampling();
+	//Drum_stop();
+	//AudioMixer_cleanup();
 
 	return 0;
 }

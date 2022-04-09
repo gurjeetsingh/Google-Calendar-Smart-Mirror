@@ -104,6 +104,8 @@ $(document).ready(function() {
 	// bbb udp command from as3
 	window.setInterval(function() {sendCommand("status 0")}, 800);
 
+	window.setInterval(function() {sendCommand("pot 0")}, 800);
+
 	socket.on('commandReply', function(result) {
 
 		// hide error message if we recieve a response
@@ -113,6 +115,8 @@ $(document).ready(function() {
 			case "tempo":
 				$('#BPMid').val(command[1])
 				break;
+			case "pot":
+				console.log("Sector = ", parseInt(command[1]));
 			default:
 				break;
 		}

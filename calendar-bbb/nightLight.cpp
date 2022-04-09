@@ -30,7 +30,7 @@ static bool stop = false;
 static pthread_t night_light_thread;
 
 static int readLineFromFile(char* file_name, char* buff, unsigned int max_length);
-void* runNightLight();
+void* runNightLight(void* arg);
 
 void nightLightInit(){
     pthread_create(&night_light_thread, NULL, runNightLight,NULL);
@@ -38,6 +38,7 @@ void nightLightInit(){
 
 void nightLightStop(){
     stop = true;
+    
     pthread_join(night_light_thread, NULL);
 }
 
@@ -101,6 +102,7 @@ void* runNightLight(void* arg){
             Gpio_writeValue(led_gpio_pins[index_of_next_LED_to_on],ON_LED);
             num_of_leds_on++;
             index_of_next_LED_to_on++;
+            printf("Button pressed: Turn on LED\n");
 
         }else{
             for (int i = 0; i < NUM_OF_LEDS; i++)
@@ -109,6 +111,7 @@ void* runNightLight(void* arg){
             }
             num_of_leds_on = 0;
             index_of_next_LED_to_on = 0;
+            printf("Turning off all LEDs\n");
         }
 
         //temp_shutdown_value--;
@@ -120,6 +123,13 @@ void* runNightLight(void* arg){
 
     //stop = true;
     printf("Exiting Night Light function\n");
+    // Turn off LEDS before exiting
+    for(int i = 0; i < NUM_OF_LEDS; i++){
+
+        Gpio_writeValue(led_gpio_pins[i],OFF_LED);
+        printf("NightLight Stop - Turning off LED\n");
+    }
+    sleep_ms(10);
     pthread_exit(NULL);
 }
 
