@@ -536,7 +536,7 @@ function updateSelectedEvent(dir) {
 			break;
 		}
 	}
-	// chart.setSelection([{row: selectedSlice, column: null}]);
+	chart.setSelection([{row: selectedSlice, column: null}]);
 	newColour = eventPeriodList[selectedEvent].style["background-active"];
 	console.log('old color', sliceColours[selectedSlice]);
 	console.log('new color', newColour)
@@ -547,7 +547,7 @@ function updateSelectedEvent(dir) {
 	console.log(sliceColours)
 	options.slices = sliceColours;
 	chart.draw(chartData, options);
-	chart.setSelection([{row: selectedSlice, column: null}]);
+	// chart.setSelection([{row: selectedSlice, column: null}]);
 }
 
 function displayError(message) {
