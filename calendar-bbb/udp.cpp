@@ -5,7 +5,7 @@
 #include <unistd.h>			// for close()
 #include <pthread.h>
 #include <ctype.h>
-#include <stdbool.h>
+#include <time.h>
 
 #include "udp.h"	
 #include "audioMixer.h"
@@ -32,6 +32,7 @@ enum COMMANDS {
 	STATUS,
 	DRUM, // play a sound from "DRUM_KIT"
 	UNKNOWN,
+	ALERT
 };
 
 
@@ -109,7 +110,7 @@ void* UDP_listen(void* arg) {
 		char messageTx[MSG_MAX_LEN];
 		int newVolume;	
 		int newBPM;
-
+		int initialTime = clock();
         switch (cmd) {
 	        case MODE: ; // Change DRUM_MODE mode
 				
@@ -169,8 +170,19 @@ void* UDP_listen(void* arg) {
 						0,
 						(struct sockaddr *) &sinRemote, sin_len);
 				break;
+			case ALERT: ;
+				//play for 5 second
+				initialTime = clock();
+				while(1) {
+					Drum_playOnce(param);
+					if(clock() - initialTime >= 5) {
+						break;
+					}
+            		
+				}
+				break;
 			default:
-				sprintf(messageTx, "Unknown Command\n\n");
+				sprintf(messageTx, "Unknown Commmakeand\n\n");
 				sendto( socketDescriptor,
 						messageTx, strlen(messageTx),
 						0,
