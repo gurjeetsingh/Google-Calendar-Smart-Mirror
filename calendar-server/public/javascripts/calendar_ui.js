@@ -351,13 +351,15 @@ function drawPieChart() {
 			j++;
 		}
 		if (i == 0) {
-			// to-do: select the first upcoming event
+			
 			selectedSlice = j;
 		}
 		var currEnd = event.pieChartTime.end;
 
 		pieDataArr.push([event.eventTitle, event.pieChartTime.length]);
 		sliceColours[j] = { color: event.style.background};
+
+		// select the first upcoming event
 		if(currEnd > localTime12 && !bestSlice) {
 			selectedSlice = j;
 			bestSlice = true;
