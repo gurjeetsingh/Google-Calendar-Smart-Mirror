@@ -200,7 +200,7 @@ $(document).ready(function() {
 	setTimeout(function() { getCalendarInfo(); }, 500);
 	setTimeout(function() { sendCalendarApiRequest(); sendWeatherApiRequest() }, 1000);
 	setTimeout(function() { populateEvents(); google.charts.setOnLoadCallback(drawPieChart); }, 3000);
-	//setInterval(function () {alertUpcomingEvent()}, 500)
+	setInterval(function () {alertUpcomingEvent()}, 500)
 	
 
 });
@@ -300,35 +300,6 @@ function populateEvents() {
 	});
 }
 
-function alertUpcomingEvent() {
-	var eventPeriodList = (timePeriod == "AM") ? eventsArr['AM'] : eventsArr['PM']
-	eventPeriodList.sort(propertySort('mstime'))
-
-
-	var recentEvent = eventPeriodList[0].mstime
-	//used to gget secondsssssss
-	var recEvent = new Date(recentEvent)
-	var getDate = recentEvent.split("T")
-	var eventDate = getDate[0]
-	var currentDate = new Date()
-	// formatting for comparison yyyy-mm-dd
-	var curDate = currentDate.toISOString().split('T')[0]
-	/*
-	console.log("date of event" + eventDate)
-	console.log("current date" + curDate)
-	console.log("time of event" +  recEvent.getTime())
-	console.log("time of day" +  currentDate.getTime())
-	*/
-	// todays date -> check time
-	if(curDate === eventDate) {
-		//check if event is less than 1 hr
-		if((recEvent.getTime - currentDate.getTime()) < 36e5) {
-			sendCommand("alert 4")
-		}
-	
-	}
-
-}
 function drawPieChart() {
 
 	console.log(eventsArr)
@@ -455,6 +426,38 @@ function drawPieChart() {
 	chart.draw(chartData, options);
 }
 
+function alertUpcomingEvent() {
+	//get selected event iindex
+	var recentEventIndex = selectedEvent
+
+	var eventPeriodList = (timePeriod == "AM") ? eventsArr['AM'] : eventsArr['PM']
+	var recentEvent = eventPeriodList[recentEventIndex].mstime
+	//used to gget secondsssssss
+	var recEvent = new Date(recentEvent)
+	var getDate = recentEvent.split("T")
+
+	var eventDate = getDate[0]
+	var currentDate = new Date()
+	// formatting for comparison yyyy-mm-dd
+	var curDate = currentDate.toISOString().split('T')[0]
+	/**
+	console.log("date of event" + eventDate)
+	console.log("current date" + curDate)
+	console.log("time of event" +  recEvent.getTime())
+	console.log("time of day" +  currentDate.getTime())
+	*/
+	
+	// todays date -> check time
+	if(curDate === eventDate) {
+		//check if event is less than 1 hr
+		if((recEvent.getTime - currentDate.getTime()) <= 36e5) {
+			sendCommand("alert 4")
+		}
+	
+	}
+	
+
+}
 
 // sends command to server for status updates and commands for bbb
 function sendCommand(message) {

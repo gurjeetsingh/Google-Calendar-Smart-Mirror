@@ -21,7 +21,7 @@ int main()
 	// create threads to receive inputs from user
 	// and send commands to device
 	Drum_init();
-    Zencape_startSampling();
+    //Zencape_startSampling();
 	UDP_start();
 
 	sleep(10000000);
