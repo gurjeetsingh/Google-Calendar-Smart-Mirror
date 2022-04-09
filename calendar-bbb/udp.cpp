@@ -31,8 +31,7 @@ enum COMMANDS {
 	TEMPO,
 	STATUS,
 	DRUM, // play a sound from "DRUM_KIT"
-	UNKNOWN,
-	ALERT
+	UNKNOWN
 };
 
 
@@ -108,6 +107,7 @@ void* UDP_listen(void* arg) {
 		int param = parsedCommand[1];
 
 		char messageTx[MSG_MAX_LEN];
+		printf("enums are %d\n", cmd);
 		int newVolume;	
 		int newBPM;
 		int initialTime = clock();
@@ -163,26 +163,17 @@ void* UDP_listen(void* arg) {
 				printf("bpm is %d\n", Drum_getBPM());			
                 break;
             case DRUM: ; // play a drum note once
-				Drum_playOnce(param);
-				sprintf(messageTx, "playing once %d", param);
-				sendto( socketDescriptor,
-						messageTx, strlen(messageTx),
-						0,
-						(struct sockaddr *) &sinRemote, sin_len);
-				break;
-			case ALERT: ;
-				//play for 5 second
 				initialTime = clock();
 				while(1) {
 					Drum_playOnce(param);
-					if(clock() - initialTime >= 5) {
+					if(clock() - initialTime >= 2) {
 						break;
 					}
             		
 				}
 				break;
 			default:
-				sprintf(messageTx, "Unknown Commmakeand\n\n");
+				sprintf(messageTx, "Unknown Commmand\n\n");
 				sendto( socketDescriptor,
 						messageTx, strlen(messageTx),
 						0,
