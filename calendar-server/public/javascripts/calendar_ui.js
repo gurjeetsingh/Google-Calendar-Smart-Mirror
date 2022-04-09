@@ -48,25 +48,6 @@ const eventStyles = {
 	}
 }
 
-// const eventStyles = [
-// 	//  background, time, title,
-// 	// red
-// 	["rgba(176,0,0,0.1)", "rgba(146,0,0,0.8)", "rgba(146,0,0,1)"],
-// 	// green
-// 	["rgba(0,176,0,0.15)", "rgba(0,146,0,0.8)", "rgba(0,146,0,1)"],
-// 	// orange
-// 	["rgba(244,196,29,0.2)", "rgba(166,112,0,0.8)", "rgb(198,135,5)"],
-// 	// blue
-// 	["rgba(9, 167, 207,0.1)", "rgba(0,147,187,0.8)", "rgba(0,147,187,1)"]
-// ];
-
-// const eventStyles = {
-// 	colourNames: ["red", "green", "orange", "blue"],
-// 	backgroundColors: ["rgba(176,0,0,0.1)", "rgba(0,176,0,0.15)", "rgba(244,196,29,0.2)", "rgba(9, 167, 207,0.1)"],
-// 	time: ["rgba(146,0,0,0.8)", "rgba(0,146,0,0.8)", "rgba(166,112,0,0.8)", "rgba(0,147,187,0.8)"],
-// 	title: ["rgba(146,0,0,1)", "rgba(0,146,0,1)", "rgb(198,135,5)", "rgba(0,147,187,1)"],
-
-// }
 
 
 var chart;
@@ -77,7 +58,6 @@ var eventsArr = {
 }
 var selectedEvent = 0;
 var selectedSlice = 0;
-// var eventsTitle = []
 
 var calendarNames = [];
 var calendarColours = [];
@@ -89,6 +69,9 @@ var sliceColours;
 
 var options;
 var chartData;
+
+var localHour;
+var localMin;
 
 var localTime12;
 
@@ -106,21 +89,15 @@ $(document).keypress(function(e) {
 		console.log("s key pressed");
 		updateSelectedEvent("down");
 	}
-	// chart.setSelection([e]);
-	// google.visualization.events.trigger(this, 'select', {});
+
 });
 
 // Make connection to server when web page is fully loaded.
 var socket = io.connect();
 $(document).ready(function() {
 
-
 	google.charts.load('current', {'packages':['corechart']});
-	// google.charts.setOnLoadCallback(drawPieChart);
-
 	getLocalDate();
-	
-	
 
 	window.setInterval(function() {getLocalDate(); }, 2000);
 
@@ -161,15 +138,8 @@ $(document).ready(function() {
 		var colourName = result.contents.calendarColours
 
 		console.log(events)
-	
-		// var cntObj = $('#schedule-event-cnt')
+
 		events.map((event, i) => {
-
-			// // to-do get obj list by class
-			// var timeObj = $('#schedule-event-time-' + i).addClass("schedule-event-time")
-			// var domObj = $('#schedule-event-title-' + i).addClass("schedule-event-title")
-
-			// $("schedule-event-cnt").append("Some appended text.");
 
 			const start = new Date(event.start.dateTime)
 			var startHour = start.getHours(); //returns value 0-23 for the current hour
@@ -178,19 +148,7 @@ $(document).ready(function() {
 			const end = new Date(event.end.dateTime)
 			var endHour = end.getHours(); //returns value 0-23 for the current hour
 			var endMin = end.getMinutes(); //returns value 0-59 for the current minute of the hour
-			const convertedEndTime = convertToStringTime(endHour, endMin);
-
-
-			// eventsArr.push(`${convertedStartTime} - ${convertedEndTime}`)
-			
-			// eventsTitle.push(`${event.summary}`)
-			// console.log(`${eventsArr[i]}\n`)
-			// console.log(`${eventsTitle[i]}\n`)
-
-			// for(let i = 1; i < eventsArr.length; i++ ) {
-			// 	timeObj.html(eventsArr[i])
-			// 	domObj.html(eventsTitle[i])
-			// }			
+			const convertedEndTime = convertToStringTime(endHour, endMin);		
 			
 			var eventTime = `${convertedStartTime} - ${convertedEndTime}`
 			var eventTitle = event.summary
@@ -199,13 +157,6 @@ $(document).ready(function() {
 			var startTime12 = parseInt(t24to12Hour(startHour)) + (startMin/60);
 			var endTime12 = parseInt(t24to12Hour(endHour)) + (endMin/60);
 			
-			// if (timePeriod == "PM") {
-			// 	if (endTime12 < 12) {
-			// 		endTime12 = 24
-			// 	}
-			// 	startTime12 -= 12;
-			// 	endTime12 -= 12;
-			// }
 			console.log("startTime12: ", startTime12, " endTime12: ", endTime12)
 			var pieChartTime = {start: startTime12,
 								end: endTime12,
@@ -232,7 +183,6 @@ $(document).ready(function() {
 		var icon = result.contents.weather[0].icon
 		var weatherIconURL = `http://openweathermap.org/img/wn/${icon}@2x.png`
 
-
 		$('#weather-icon').attr("src", weatherIconURL);
 		console.log(events)
 
@@ -253,44 +203,12 @@ $(document).ready(function() {
 	//setInterval(function () {alertUpcomingEvent()}, 500)
 	
 
-
-	
-	// window.setInterval(function() {sendCalendarApiRequest()}, 1000);
-
-	// sendCalendarApiRequest();
-
 });
 
-// update events cnt if window size changed
-$(window).resize(function () {
-    console.log($('#schedule-cnt').height()); 
-});
-
-
-
-
-
-
-
-function apiRequestCalendarEvents() {
-	// send socket request to server
-
-	// testing w/o server connection
-	var result = {
-		events : [
-			{time: "time 1", title: "title 1"}, 
-			{time: "time 2", title: "title 2"},
-			{time: "time 3", title: "title 3"},
-		]
-	};
-
-	return result;
-
-	// end testing
-}
-
-
-
+// // update events cnt if window size changed
+// $(window).resize(function () {
+//     console.log($('#schedule-cnt').height()); 
+// });
 
 // sends request for device uptime
 function sendWeatherApiRequest() {
@@ -322,39 +240,28 @@ function getLocalDate() {
     var weekday = weekDays[localDate.getDay()];
     var month = monthNames[localDate.getMonth()];
     var day = localDate.getDate();
-    var hour = localDate.getHours(); //returns value 0-23 for the current hour
-    var min = localDate.getMinutes(); //returns value 0-59 for the current minute of the hour
+    localHour = localDate.getHours(); //returns value 0-23 for the current localHour
+    localMin = localDate.getMinutes(); //returns value 0-59 for the current localMinute of the localHour
 
-	console.log(hour)
-	
-
-	
 	console.log("LOCAL TIME 12", localTime12);
 
-	if (hour < 12) {
+	if (localHour < 12) {
 		$('#time-period').text("AM");
-		if (hour == 0) {
-			localTime12 = parseInt(hour) + (min/60);
-			hour = 12;
+		if (localHour == 0) {
+			localTime12 = parseInt(localHour) + (localMin/60);
+			localHour = 12;
 		}	
 		timePeriod = "AM";
 	} else {
 		$('#time-period').text("PM");
-		if (hour > 12) {
-			hour -= 12;
-			localTime12 = parseInt(hour) + (min/60);
+		if (localHour > 12) {
+			localHour -= 12;
+			localTime12 = parseInt(localHour) + (localMin/60);
 		}
 		timePeriod = "PM";
 	}
-
 	
-
-	// if (min < 10) { 
-	// 	min = '0' + String(min);
-	// }
-
-	
-    var text = convertToStringTime(hour, min);
+    var text = convertToStringTime(localHour, localMin);
     $('#time-numeric').text(text);
 
 	$('#date-weekday').text(weekday);
@@ -371,8 +278,6 @@ function convertToStringTime(hour, minutes) {
 	if (minutes < 10) { 
 		minutes = '0' + String(minutes);
 	}
-    // var text = String(hour + ':' + minutes);
-    // console.log(hour + ':' + minutes);
 	return hour + ':' + minutes
 }
 
@@ -391,7 +296,7 @@ function populateEvents() {
 			<div class="schedule-event-title" id="schedule-event-title-${i}" style="color: ${event.style.title}">${event.eventTitle}</div>
 			<div class="schedule-event-desc" id="schedule-event-desc-${i}" style="display: none; color: ${event.style.title}">${event.desc}</div>
 		</div>`
-	$('#schedule-event-cnt').append(eventDivHTMTL)
+		$('#schedule-event-cnt').append(eventDivHTMTL)
 	});
 }
 
@@ -425,9 +330,6 @@ function alertUpcomingEvent() {
 
 }
 function drawPieChart() {
-	// eventsArr.sort(propertySort('mstime'))
-
-
 
 	console.log(eventsArr)
 
@@ -471,22 +373,57 @@ function drawPieChart() {
 
 	chartData = google.visualization.arrayToDataTable(pieDataArr);
 
-	
+	var height = $('#schedule-cnt').height();
+	var width = $('#piechart').width();
+
+	$('#schedule-cnt').height(height);
+
+	$('#clock-cnt').height(width);
+	$('#clock-cnt').width(width);
+
+	var pieRelHeight = 0.99 // % of
+
+	var pieHeight = width*pieRelHeight;
+	var pieRelPos = width*(1-pieRelHeight)/2
+
+	$('#piechart').height(pieHeight);
+	$('#piechart').width(pieHeight);
+
+	// overlay the clock on top of the chart
+	var piechartPos = $('#clock-cnt').offset();
+	$('#clock-img').height(width)
+	$('#clock-img').css(piechartPos)
+
+	$('#piechart').css('position', 'absolute')
+	$('#piechart').css({top: piechartPos.top + pieRelPos, left: piechartPos.left + pieRelPos})
+	console.log(piechartPos)
+
+	// draw the clock (hours)
+
+	for(var i = 1; i <= 12; i++) {
+		var fontSize = 18;
+		var deg = i*30
+		$('#clock-hour'+i).css({top: piechartPos.top + pieRelPos, left: piechartPos.left + pieRelPos + pieHeight/2 - fontSize})
+		$('#clock-hour'+i).height(pieHeight)
+		$('#clock-hour'+i).css({'transform' : 'rotate('+ deg +'deg)'});
+	}
 
 
-	console.log("og height");
-	  console.log($('#schedule-cnt').height());
 
-	  var height = $('#schedule-cnt').height();
-	  var width = $('#piechart').width();
 
-	  $('#schedule-cnt').height(height);
-	//   $('#schedule-cnt').width(height);
-	$('#piechart').height(width);
-	  console.log(typeof(height));
-	  console.log(height + ' ' + width);
+	$('#hour-hand').width(pieHeight/2)
+	$('#hour-hand').css({top: piechartPos.top + pieRelPos + pieHeight/2, left: piechartPos.left + pieRelPos})
+	// update the clock hour hand
+	// https://dev.to/code_mystery/simple-analog-clock-using-html-css-javascript-2c6a
+	$('#hour-hand').css({'transform' : 'rotate('+ hourDegrees +'deg)'});
+	var hourDegrees = ((localHour / 12) * 360) + ((localMin/60)*30) + 90;
+	$('#hour-hand').css({'transform' : 'rotate('+ hourDegrees +'deg)'});
 
-	  options = {
+
+
+
+
+	options = {
 		legend: 'none',
 		chart: {
 			title: 'time',
@@ -494,125 +431,28 @@ function drawPieChart() {
 		  },
 		chartArea: { 
 			backgroundColor: {stroke: 'red', strokeWidth: 2},
-			// 'backgroundColor': {
-			// 	'fill': '#F4F4F4',
-			// 	'opacity': 100
-			//  },
 			height: 1000,
-			top: 10, 
-			left:10,
-			right: 10,
+			top: 0, 
+			left: 0,
+			right: 0,
 		},
-		tooltip:{trigger : 'selection', isHtml: true, text: 'none', width: 20, textStyle: { fontSize: 18,
-		bold: true}},
-		// chartArea: { backgroundColor: '#f1f7f9' },
-		// height: height + 100,
+		// tooltip:{trigger : 'selection', isHtml: true, text: 'none', width: 20, textStyle: { fontSize: 18,
+		// bold: true}},
 		pieSliceText : 'none',
 		slices: sliceColours,
 		backgroundColor: 'none',
-		
-
 	  };
 	  
-	  var pieChartElement = document.getElementById('piechart')
-	  chart = new google.visualization.PieChart(pieChartElement);
-      // Wait for the chart to finish drawing before calling the getImageURI() method.
-      google.visualization.events.addListener(chart, 'select', function () {
-        // pieChartElement.innerHTML = '<img src="' + chart.getImageURI() + '">';
-		// chart.setSelection([{row: 1, column: null}]);
-		// chart.draw(chartData, options);
+	var pieChartElement = document.getElementById('piechart')
+	chart = new google.visualization.PieChart(pieChartElement);
+	// Wait for the chart to finish drawing before calling the getImageURI() method.
+	google.visualization.events.addListener(chart, 'select', function () {
 		console.log('select trig')
+	});
 
-
-      });
-	  chart.draw(chartData, options);
+	chart.draw(chartData, options);
 }
 
-
-	// var pieChart;
-	// function drawPieChart() {
-	//   // Create and populate the data table.
-	//   var data = new google.visualization.DataTable();
-	//   data.addColumn('string', 'Task');
-	//   data.addColumn('number', 'Hours per Day');
-
-	//   var sliceColours = {};
-
-	//   var eventPeriodList = (timePeriod == "AM") ? eventsArr['AM'] : eventsArr['PM']
-  
-	//   var j = 0;
-	//   var pieHour = 0;
-	//   // fill pieDataArr from hour 0 to 12
-	// //   data.addRows(eventPeriodList.length + 5);
-	// //   eventPeriodList.map((event, i) => {
-	// // 	  var currStart = event.pieChartTime.start;
-	// // 	  console.log("piechart start: ", pieHour, "event start: ", currStart)
-	// // 	  if (currStart > pieHour) {
-	// // 		//   pieDataArr.push(["Blank Slot", currStart - pieHour ]);
-
-	// // 		  sliceColours[j] = { color: 'transparent' };
-	// // 		  data.setValue(j, 0, 'blankslot');
-	// // 		  data.setValue(j, 1, currStart - pieHour);
-	// // 		  j++;
-	// // 	  }
-	// // 	//   pieDataArr.push([event.eventTitle, event.pieChartTime.length]);
-	// // 	  sliceColours[j] = { color: event.style.background};
-	// // 	  data.setValue(j, 0, event.eventTitle);
-	// // 	  data.setValue(j, 1, currStart - pieHour);
-	// // 	  j++;
-	// // 	  pieHour = event.pieChartTime.end;
-	// //   });
-  
-	//   data.addRows(5);
-	//   data.setValue(0, 0, 'Work');
-	//   data.setValue(0, 1, 11);
-	//   data.setValue(1, 0, 'Eat');
-	//   data.setValue(1, 1, 2);
-	//   data.setValue(2, 0, 'Commute');
-	//   data.setValue(2, 1, 2);
-	//   data.setValue(3, 0, 'Watch TV');
-	//   data.setValue(3, 1, 2);
-	//   data.setValue(4, 0, 'Sleep');
-	//   data.setValue(4, 1, 7);
-
-	//   // Create and draw the visualization.
-	//   pieChart = new google.visualization.PieChart(document.getElementById('piechart'));
-	//   pieChart.draw(data, {legend:'none'});
-	//   google.visualization.events.addListener(pieChart, 'ready', 
-	// 	readyTest);  
-	// }
-	// function readyTest(){
-	//   pieChart.setSelection([{row:0}]);
-	// }
-
-// 	var pieChart;
-// 	function drawPieChart() {
-// 	  // Create and populate the data table.
-// 	  var data = new google.visualization.DataTable();
-// 	  data.addColumn('string', 'Task');
-// 	  data.addColumn('number', 'Hours per Day');
-// 	  data.addRows(5);
-// 	  data.setValue(0, 0, 'Work');
-// 	  data.setValue(0, 1, 11);
-// 	  data.setValue(1, 0, 'Eat');
-// 	  data.setValue(1, 1, 2);
-// 	  data.setValue(2, 0, 'Commute');
-// 	  data.setValue(2, 1, 2);
-// 	  data.setValue(3, 0, 'Watch TV');
-// 	  data.setValue(3, 1, 2);
-// 	  data.setValue(4, 0, 'Sleep');
-// 	  data.setValue(4, 1, 7);
-
-// 	  // Create and draw the visualization.
-// 	  pieChart = new 
-// google.visualization.PieChart(document.getElementById('piechart'));
-// 	  pieChart.draw(data);
-// 	  google.visualization.events.addListener(pieChart, 'ready', 
-// readyTest);  
-// 	}
-// 	function readyTest(){
-// 	  pieChart.setSelection([{row:0}]);
-// 	}
 
 // sends command to server for status updates and commands for bbb
 function sendCommand(message) {
@@ -689,12 +529,7 @@ function updateSelectedEvent(dir) {
 	var numEvents = eventPeriodList.length;
 
 	var eventDescObj = $('#schedule-event-desc-' + selectedEvent)
-	// var piechartObj = $('#piechart')
-	// var eventColour = eventDescObj.css()
 	eventDescObj.css('display', 'none')
-
-
-	
 	chart.setSelection([{row: selectedSlice, column: null}]);
 	var newColour = eventPeriodList[selectedEvent].style["background"];
 	console.log('old color', sliceColours[selectedSlice]);
@@ -705,27 +540,6 @@ function updateSelectedEvent(dir) {
 
 	$(`#event${selectedEvent}`).css('background-color', newColour);
 
-	// chart.setSelection([{row: selectedEvent+1, column: null}]);
-	// var pieChartElement = document.getElementById('piechart')
-	// console.log(pieChartElement)
-	// var pieSliceElements = pieChartElement.getElementsByTagName('g')
-	// console.log(pieSliceElements[1])
-
-	// var sliceObjs = $('g');
-
-	// sliceObjs.each(function(index, obj){
-	// 	console.log(obj);
-	// });
-
-	// console.log("slices")
-	// console.log(sliceObjs)
-	// console.log($('g'))
-
-	// console.log(sliceObjs[1])
-
-	
-	
-	
 	if (dir === 'up') {
 		selectedEvent = selectedEvent+numEvents-1
 		
@@ -754,7 +568,7 @@ function updateSelectedEvent(dir) {
 			break;
 		}
 	}
-	chart.setSelection([{row: selectedSlice, column: null}]);
+	// chart.setSelection([{row: selectedSlice, column: null}]);
 	newColour = eventPeriodList[selectedEvent].style["background-active"];
 	console.log('old color', sliceColours[selectedSlice]);
 	console.log('new color', newColour)
@@ -765,6 +579,7 @@ function updateSelectedEvent(dir) {
 	console.log(sliceColours)
 	options.slices = sliceColours;
 	chart.draw(chartData, options);
+	chart.setSelection([{row: selectedSlice, column: null}]);
 }
 
 function displayError(message) {
