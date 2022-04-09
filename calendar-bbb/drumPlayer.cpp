@@ -29,14 +29,15 @@ typedef struct {
 	wavedata_t *pSound;
 } drumsounds_t;
 
-char const *soundPaths[3] = {
+char const *soundPaths[4] = {
     "./../beatbox-wav-files/100053__menegass__gui-drum-cc.wav",
     "./../beatbox-wav-files/100059__menegass__gui-drum-snare-soft.wav",
     // "./../beatbox-wav-files/100051__menegass__gui-drum-bd-hard.wav"	
-	"./../beatbox-wav-files/100052__menegass__gui-drum-bd-soft.wav"	
+	"./../beatbox-wav-files/100052__menegass__gui-drum-bd-soft.wav",
+	"./../beatbox-wav-files/72125__kizilsungur__sweetalertsound1.wav"
 };
 
-static drumsounds_t soundFiles[3];
+static drumsounds_t soundFiles[4];
 
 
 int standard_eight[8][3] = {
@@ -126,7 +127,7 @@ static pthread_t drumming_ThreadId;
 
 void Drum_init(void) {
 
-	for (int i = 0; i <= BASE; i++) {
+	for (int i = 0; i <= 3; i++) {
 
 		soundFiles[i].pSound = new wavedata_t;
 		soundFiles[i].fileName = soundPaths[i];
@@ -137,7 +138,7 @@ void Drum_init(void) {
 		AudioMixer_readWaveFileIntoMemory(soundFiles[i].fileName, soundFiles[i].pSound);
 		// printf("filename: %s\n", soundFiles[i].fileName);
 	}
-	pthread_create(&drumming_ThreadId, NULL, Drum_threading, NULL);
+	//pthread_create(&drumming_ThreadId, NULL, Drum_threading, NULL);
 }
 
 // thread safe adding of sound to queue

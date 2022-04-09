@@ -11,6 +11,9 @@ bbb:
 	@echo 'CREATE calendar EXEC OUTPUT TO $(PUBDIR)/calendar-bbb/'
 	make --directory=calendar-bbb
 	@echo ''
+	mkdir -p $(PUBDIR)/calendar-bbb
+	chmod a+rwx $(PUBDIR)/calendar-bbb/
+	cp -R calendar-bbb/* $(PUBDIR)/calendar-bbb/
 
 server:
 	@echo 'COPYING calendar SERVER DIR TO $(PUBDIR)/calendar-server-copy/'

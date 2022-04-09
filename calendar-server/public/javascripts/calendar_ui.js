@@ -200,6 +200,8 @@ $(document).ready(function() {
 	setTimeout(function() { getCalendarInfo(); }, 500);
 	setTimeout(function() { sendCalendarApiRequest(); sendWeatherApiRequest() }, 1000);
 	setTimeout(function() { populateEvents(); google.charts.setOnLoadCallback(drawPieChart); }, 3000);
+	//setInterval(function () {alertUpcomingEvent()}, 500)
+	
 
 });
 
@@ -296,6 +298,36 @@ function populateEvents() {
 		</div>`
 		$('#schedule-event-cnt').append(eventDivHTMTL)
 	});
+}
+
+function alertUpcomingEvent() {
+	var eventPeriodList = (timePeriod == "AM") ? eventsArr['AM'] : eventsArr['PM']
+	eventPeriodList.sort(propertySort('mstime'))
+
+
+	var recentEvent = eventPeriodList[0].mstime
+	//used to gget secondsssssss
+	var recEvent = new Date(recentEvent)
+	var getDate = recentEvent.split("T")
+	var eventDate = getDate[0]
+	var currentDate = new Date()
+	// formatting for comparison yyyy-mm-dd
+	var curDate = currentDate.toISOString().split('T')[0]
+	/*
+	console.log("date of event" + eventDate)
+	console.log("current date" + curDate)
+	console.log("time of event" +  recEvent.getTime())
+	console.log("time of day" +  currentDate.getTime())
+	*/
+	// todays date -> check time
+	if(curDate === eventDate) {
+		//check if event is less than 1 hr
+		if((recEvent.getTime - currentDate.getTime()) < 36e5) {
+			sendCommand("alert 4")
+		}
+	
+	}
+
 }
 function drawPieChart() {
 
