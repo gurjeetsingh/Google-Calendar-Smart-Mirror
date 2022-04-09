@@ -3,7 +3,7 @@ PROJECT_NAME=as3
 # DEPLOY_PATH= $(HOME)/cmpt433/public/node/$(PROJECT_NAME)-copy
 PUBDIR = $(HOME)/cmpt433/public
 
-all: bbb server wav
+all: bbb server wav npm
 
 mini: bbb server
 
@@ -23,7 +23,7 @@ server:
 	cp -R calendar-server/* $(PUBDIR)/calendar-server-copy/
 	@echo 'Do not edit any files in this folder; they are copied!'
 
-
+	# rm $(PUBDIR)/calendar-server-copy/calendar-api/token.json
 
 npm: server 
 	@echo ''
@@ -34,6 +34,11 @@ npm: server
 	@echo ''
 	cd $(PUBDIR)/calendar-server-copy/ && npm install
 	@echo ''
+	@echo 'RUNNING NPM INSTALL IN $(PUBDIR)/calendar-server-copy/calendar-api/'
+	@echo ''
+	@echo '(This may take some time)'
+	@echo ''
+	cd $(PUBDIR)/calendar-server-copy/calendar-api/ && npm install	
 
 
 
