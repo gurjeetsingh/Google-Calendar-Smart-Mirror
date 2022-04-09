@@ -9,11 +9,13 @@
 #include "audioMixer.h"
 #include "drumPlayer.h" 
 #include "udp.h"	
+#include "nightLight.h"
 
 int main() 
 {
 	srand(time(NULL));
 
+	nightLightInit();
 	// create thread to play audio
 	AudioMixer_init();
 	sleep(2);
@@ -27,6 +29,7 @@ int main()
 	sleep(10000000);
 
 	// device clean up and join threads
+	nightLightStop();
 	UDP_stop();
 	Zencape_stopSampling();
 	Drum_stop();

@@ -10,6 +10,7 @@
 #include "udp.h"	
 #include "audioMixer.h"
 #include "drumPlayer.h" 
+#include "potReading.h"
 
 #define MSG_MAX_LEN 11000
 #define PORT        12345
@@ -18,19 +19,11 @@
 #define NUM_COMMANDS 5
 
 char const *commandStr[5] = {
-    "mode",
-    "volume",
-    "tempo",
-	"status",
-    "drum",
+    "pot"
 };
 
 enum COMMANDS {
-	MODE = 0,
-	VOLUME,
-	TEMPO,
-	STATUS,
-	DRUM, // play a sound from "DRUM_KIT"
+	POT = 0,
 	UNKNOWN,
 	ALERT
 };
@@ -105,81 +98,21 @@ void* UDP_listen(void* arg) {
 
 		int cmd = parsedCommand[0];
 		printf("COMMAND %d\n", cmd);
-		int param = parsedCommand[1];
+		//int param = parsedCommand[1];
 
 		char messageTx[MSG_MAX_LEN];
 		int newVolume;	
 		int newBPM;
 		int initialTime = clock();
         switch (cmd) {
-	        case MODE: ; // Change DRUM_MODE mode
+	        case POT: ;
 				
-				if(param >= 0) {
-					Drum_setMode(param);
-				}
-				
-				sprintf(messageTx, "mode %d", Drum_getMode());
-				printf("mode is %d\n", Drum_getMode());
+				sprintf(messageTx, "sector %d", getSelectedSector());
+				printf("sector is %d\n", getSelectedSector());
 				sendto( socketDescriptor,
 						messageTx, strlen(messageTx),
 						0,
 						(struct sockaddr *) &sinRemote, sin_len);					
-				break;
-            case VOLUME: ; // increase or decrease volume
-				
-				newVolume = AudioMixer_getVolume() + param;
-
-				if( param != 0) {
-					AudioMixer_setVolume(newVolume);
-				}
-                    
-                sprintf(messageTx, "volume %d", newVolume);
-				sendto( socketDescriptor,
-						messageTx, strlen(messageTx),
-						0,
-						(struct sockaddr *) &sinRemote, sin_len);	
-				printf("current volume is %d\n", newVolume);
-                break;
-            case TEMPO: ; // increase or decrease bpm
-
-				newBPM = Drum_getBPM() + param;
-				Drum_setBPM(newBPM);
-
-				sprintf(messageTx, "tempo %d\n", newBPM);
-				sin_len = sizeof(sinRemote);
-				sendto( socketDescriptor,
-						messageTx, strlen(messageTx),
-						0,
-						(struct sockaddr *) &sinRemote, sin_len);	
-				printf("bpm is %d\n", Drum_getBPM());			
-                break;
-            case STATUS: ; // get all status information 
-				sprintf(messageTx, "status %d %d %d\n", Drum_getMode(), AudioMixer_getVolume(), Drum_getBPM());
-				sin_len = sizeof(sinRemote);
-				sendto( socketDescriptor,
-						messageTx, strlen(messageTx),
-						0,
-						(struct sockaddr *) &sinRemote, sin_len);	
-				printf("bpm is %d\n", Drum_getBPM());			
-                break;
-            case DRUM: ; // play a drum note once
-				Drum_playOnce(param);
-				sprintf(messageTx, "playing once %d", param);
-				sendto( socketDescriptor,
-						messageTx, strlen(messageTx),
-						0,
-						(struct sockaddr *) &sinRemote, sin_len);
-				break;
-			case ALERT: ;
-				//play for 5 second
-				initialTime = clock();
-				while(1) {
-					Drum_playOnce(param);
-					if(clock() - initialTime >= 5) {
-						break;
-					}
-            		
-				}
 				break;
 			default:
 				sprintf(messageTx, "Unknown Commmakeand\n\n");
