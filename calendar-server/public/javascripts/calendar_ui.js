@@ -568,6 +568,7 @@ function handleViewChange(view) {
 	// white border
 	} else if (view == 2) {
 		$('body').css('background-color', 'white');
+		$('#cnt-all').css('display', 'none')
 		$('#container').css('display', 'none')
 		$('#light-border').css('display', 'revert')
 		$('#light-border').css('background-color', 'black')
