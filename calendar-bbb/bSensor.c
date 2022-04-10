@@ -61,6 +61,26 @@ void Sampler_startSampling(){
 
         // //Sample Reading potentiometer everytime we take a sample
         // startReadingPOT();
+
+        // if voltage >1.4 full brightness
+        // if voltage <1.3 75% brightness
+        // if voltage < 1.0 50% brightness
+        // if vlotage < 0.8 20% brightness
+        if(voltage_reading > 1.4){
+            //set brightness to 100%
+        }
+
+        else if(voltage_reading <= 1.3){
+            //set brightness to 75%
+        }
+
+        else if(voltage_reading <=1.0){
+            //set brightness to 50%
+        }
+
+        else if(voltage_reading < 0.8){
+            //set brightness to 20%
+        }
         
         fclose(f);//close the file
 
