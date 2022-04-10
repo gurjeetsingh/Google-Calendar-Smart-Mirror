@@ -59,6 +59,8 @@ var eventsArr = {
 var selectedEvent = 0;
 var selectedSlice = 0;
 
+var currPotReading = 0;
+
 var calendarNames = [];
 var calendarColours = [];
 
@@ -104,23 +106,7 @@ $(document).ready(function() {
 	// bbb udp command from as3
 	window.setInterval(function() {sendCommand("status 0")}, 800);
 
-	window.setInterval(function() {sendCommand("pot 0")}, 800);
 
-	socket.on('commandReply', function(result) {
-
-		// hide error message if we recieve a response
-		hideError();
-		var command = result.split(' ')
-		switch(command[0]) {
-			case "tempo":
-				$('#BPMid').val(command[1])
-				break;
-			case "pot":
-				console.log("Sector = ", parseInt(command[1]));
-			default:
-				break;
-		}
-	});
 
 	// message from server that bbb is unresponsive
 	socket.on('error', function(result) {
@@ -203,9 +189,29 @@ $(document).ready(function() {
 	// to-do: use promises...getCalendarNames();
 	setTimeout(function() { getCalendarInfo(); }, 500);
 	setTimeout(function() { sendCalendarApiRequest(); sendWeatherApiRequest() }, 1000);
-	setTimeout(function() { populateEvents(); google.charts.setOnLoadCallback(drawPieChart); }, 3000);
+	setTimeout(function() { populateEvents(); google.charts.setOnLoadCallback(drawPieChart); }, 2000);
 	//setInterval(function () {alertUpcomingEvent()}, 500)
 	
+	window.setInterval(function() {sendCommand("pot 0")}, 4000);
+
+	socket.on('commandReply', function(result) {
+
+		// hide error message if we recieve a response
+		hideError();
+		var command = result.split(' ')
+		switch(command[0]) {
+			case "tempo":
+				$('#BPMid').val	(command[1])
+				break;
+			case "pot":
+				handlePotChange(parseInt(command[1]));
+				console.log("Sector = ", parseInt(command[1]));
+			case "screen":
+				console.log("Screen Button Pressed");
+			default:
+				break;
+		}
+	});
 
 });
 
@@ -530,6 +536,15 @@ function convertMsToTime(milliseconds) {
 	  return [hours, minutes]
 }
   
+function handlePotChange(sector){
+	if(sector > currPotReading){
+		updateSelectedEvent("down");
+		currPotReading = sector;
+	}else if(sector < currPotReading){
+		updateSelectedEvent("up");
+		currPotReading = sector;
+	}
+}
 function updateSelectedEvent(dir) {
 	var eventPeriodList = (timePeriod == "AM") ? eventsArr['AM'] : eventsArr['PM']
 	var numEvents = eventPeriodList.length;

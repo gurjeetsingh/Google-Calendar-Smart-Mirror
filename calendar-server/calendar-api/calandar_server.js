@@ -157,7 +157,7 @@ function authorize(credentials, socket, calName, callback) {
  * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.
  * @param {getEventsCallback} callback The callback for the authorized client.
  */
-function getAccessToken(oAuth2Client, callback) {
+function getAccessToken(oAuth2Client,    callback) {
 	const authUrl = oAuth2Client.generateAuthUrl({
 		access_type: 'offline',
 		scope: SCOPES,
@@ -284,12 +284,12 @@ function handleCommand(socket) {
 			var address = client.address();
 			errorTimer = setTimeout(function() {
 				socket.emit('error', "error bbb1");
-			}, 1000);
+			}, 2000);
 
 		});
 		// Handle an incoming message over the UDP from the local application.
 		client.on('message', function (message, remote) {
-			// console.log("UDP Client: message Rx" + remote.address + ':' + remote.port +' - ' + message);
+			// console.log v("UDP Client: message Rx" + remote.address + ':' + remote.port +' - ' + message);
 
 			var reply = message.toString('utf8')
 			// send response to client

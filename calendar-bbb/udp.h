@@ -7,4 +7,5 @@ void UDP_stop(void);
 void* UDP_listen(void* arg);
 void str2cmd(char *messageRx, int command[2]);
 
+void UDP_SetScreenButtonPressed();
 #endif

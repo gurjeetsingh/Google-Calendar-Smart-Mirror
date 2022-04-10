@@ -42,6 +42,8 @@ struct CommandMapping {
 static pthread_t udp_ThreadId;
 static bool terminationTriggered = false;
 
+static bool screen_button_pressed = false;
+
 void UDP_start(void) {
     printf("Starting udp...\n");
     pthread_create(&udp_ThreadId, NULL, UDP_listen, NULL);
@@ -122,7 +124,18 @@ void* UDP_listen(void* arg) {
 						(struct sockaddr *) &sinRemote, sin_len);	
 				break;
         }
+		
+		char screenMessage[MSG_MAX_LEN];
 
+		if(screen_button_pressed){
+			screen_button_pressed = false;
+			sprintf(screenMessage, "screen 1");
+			printf("UDP screen button clicked\n");
+			sendto( socketDescriptor,
+						screenMessage, strlen(screenMessage),
+						0,
+						(struct sockaddr *) &sinRemote, sin_len);
+		}
 		if(terminationTriggered) 
 		{
 			break;
@@ -134,6 +147,12 @@ void* UDP_listen(void* arg) {
 
 
     pthread_exit(0);
+}
+
+// HELPER FUNCTION FOR SCREEN BRIGHTNESS BUTTON FROM NIGHT LIGHT //
+
+void UDP_SetScreenButtonPressed(){
+	screen_button_pressed = true;
 }
 
 void str2cmd(char *messageRx, int command[2]) {

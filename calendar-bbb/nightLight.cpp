@@ -8,11 +8,14 @@
 #include "sleep_util.h"
 #include "nightLight.h"
 #include "gpio_help.h"
+#include "udp.h"
 
 #define LED_BLUE_GPIO_PIN 48
 #define LED_RED_GPIO_PIN 49     
 #define LED_YELLOW_GPIO_PIN 69
-#define BUTTON_GPIO_PIN 68
+#define LED_BUTTON_GPIO_PIN 44
+
+#define SCREEN_BUTTON_GPIO_PIN 26
 
 #define GPIO_OUT "out"
 #define GPIO_IN "in"
@@ -56,15 +59,19 @@ static void InitializeLEDPins(){
 
 static void InitializeButtonPin(){
 
-    Gpio_exportPin(BUTTON_GPIO_PIN);
+    Gpio_exportPin(LED_BUTTON_GPIO_PIN);
 
-    Gpio_writeDirection(BUTTON_GPIO_PIN, GPIO_IN);
+    Gpio_writeDirection(LED_BUTTON_GPIO_PIN, GPIO_IN);
+
+    Gpio_exportPin(SCREEN_BUTTON_GPIO_PIN);
+
+    Gpio_writeDirection(SCREEN_BUTTON_GPIO_PIN, GPIO_IN);    
 
 }
 
-static bool getButtonPress(){
+static bool getButtonPressed(int gpio_pin){
     char fileName[BUFF_SIZE];
-	sprintf(fileName, "/sys/class/gpio/gpio%d/value", BUTTON_GPIO_PIN); 
+	sprintf(fileName, "/sys/class/gpio/gpio%d/value", gpio_pin); 
 	char buff[BUFF_SIZE];
 	readLineFromFile(fileName, buff, BUFF_SIZE);
 	return buff[0] == '1';
@@ -88,36 +95,45 @@ void* runNightLight(void* arg){
 
     while(!stop){
         
-        bool button_pressed = false;
+        bool led_button_pressed = false;
+        bool screen_button_pressed = false;
 
         //&& temp_shutdown_value != 0
-        while (!button_pressed && !stop){
+        while ((!led_button_pressed || !screen_button_pressed)&& !stop){
             sleep_ms(1);
-            button_pressed = getButtonPress();
+            led_button_pressed = getButtonPressed(LED_BUTTON_GPIO_PIN);
+            screen_button_pressed = getButtonPressed(SCREEN_BUTTON_GPIO_PIN);
         }
         
-        // Turn on the LEDs
+        if(led_button_pressed){
+            // Turn on the LEDs
+            if(num_of_leds_on < NUM_OF_LEDS){
+                Gpio_writeValue(led_gpio_pins[index_of_next_LED_to_on],ON_LED);
+                num_of_leds_on++;
+                index_of_next_LED_to_on++;
+                printf("Button pressed: Turn on LED\n");
 
-        if(num_of_leds_on < NUM_OF_LEDS){
-            Gpio_writeValue(led_gpio_pins[index_of_next_LED_to_on],ON_LED);
-            num_of_leds_on++;
-            index_of_next_LED_to_on++;
-            printf("Button pressed: Turn on LED\n");
-
-        }else{
-            for (int i = 0; i < NUM_OF_LEDS; i++)
-            {
-                Gpio_writeValue(led_gpio_pins[i],OFF_LED);
+            }else{
+                for (int i = 0; i < NUM_OF_LEDS; i++)
+                {
+                    Gpio_writeValue(led_gpio_pins[i],OFF_LED);
+                }
+                num_of_leds_on = 0;
+                index_of_next_LED_to_on = 0;
+                printf("Turning off all LEDs\n");
             }
-            num_of_leds_on = 0;
-            index_of_next_LED_to_on = 0;
-            printf("Turning off all LEDs\n");
         }
+        else if(screen_button_pressed){
+            UDP_SetScreenButtonPressed();
+
+        }
+        
 
         //temp_shutdown_value--;
         //&& temp_shutdown_value != 0
-        while (getButtonPress() && !stop){
+        while ((getButtonPressed(LED_BUTTON_GPIO_PIN) || getButtonPressed(SCREEN_BUTTON_GPIO_PIN)) && !stop){
             sleep_ms(10);
+            printf("waiting");
         }
     }
 
