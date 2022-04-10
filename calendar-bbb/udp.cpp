@@ -8,8 +8,6 @@
 #include <time.h>
 
 #include "udp.h"	
-#include "audioMixer.h"
-#include "drumPlayer.h" 
 
 #define MSG_MAX_LEN 11000
 #define PORT        12345
@@ -115,11 +113,11 @@ void* UDP_listen(void* arg) {
 	        case MODE: ; // Change DRUM_MODE mode
 				
 				if(param >= 0) {
-					Drum_setMode(param);
+					//Drum_setMode(param);
 				}
 				
-				sprintf(messageTx, "mode %d", Drum_getMode());
-				printf("mode is %d\n", Drum_getMode());
+				//sprintf(messageTx, "mode %d", Drum_getMode());
+				//printf("mode is %d\n", Drum_getMode());
 				sendto( socketDescriptor,
 						messageTx, strlen(messageTx),
 						0,
@@ -127,10 +125,10 @@ void* UDP_listen(void* arg) {
 				break;
             case VOLUME: ; // increase or decrease volume
 				
-				newVolume = AudioMixer_getVolume() + param;
+				//newVolume = AudioMixer_getVolume() + param;
 
 				if( param != 0) {
-					AudioMixer_setVolume(newVolume);
+					//AudioMixer_setVolume(newVolume);
 				}
                     
                 sprintf(messageTx, "volume %d", newVolume);
@@ -142,8 +140,8 @@ void* UDP_listen(void* arg) {
                 break;
             case TEMPO: ; // increase or decrease bpm
 
-				newBPM = Drum_getBPM() + param;
-				Drum_setBPM(newBPM);
+				//newBPM = Drum_getBPM() + param;
+				//Drum_setBPM(newBPM);
 
 				sprintf(messageTx, "tempo %d\n", newBPM);
 				sin_len = sizeof(sinRemote);
@@ -151,21 +149,21 @@ void* UDP_listen(void* arg) {
 						messageTx, strlen(messageTx),
 						0,
 						(struct sockaddr *) &sinRemote, sin_len);	
-				printf("bpm is %d\n", Drum_getBPM());			
+				//printf("bpm is %d\n", Drum_getBPM());			
                 break;
             case STATUS: ; // get all status information 
-				sprintf(messageTx, "status %d %d %d\n", Drum_getMode(), AudioMixer_getVolume(), Drum_getBPM());
+				//sprintf(messageTx, "status %d %d %d\n", Drum_getMode(), AudioMixer_getVolume(), Drum_getBPM());
 				sin_len = sizeof(sinRemote);
 				sendto( socketDescriptor,
 						messageTx, strlen(messageTx),
 						0,
 						(struct sockaddr *) &sinRemote, sin_len);	
-				printf("bpm is %d\n", Drum_getBPM());			
+				//printf("bpm is %d\n", Drum_getBPM());			
                 break;
             case DRUM: ; // play a drum note once
 				initialTime = clock();
 				while(1) {
-					Drum_playOnce(param);
+					//Drum_playOnce(param);
 					if(clock() - initialTime >= 2) {
 						break;
 					}

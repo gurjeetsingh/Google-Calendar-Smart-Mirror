@@ -21,8 +21,6 @@
 
 #include "joystickInput.h"
 #include "inputSampler.h"
-#include "audioMixer.h"
-#include "drumPlayer.h"
 
 /**
  * joystickInput.cpp samples joystick input from Zencape 
@@ -83,25 +81,25 @@ void* Joystick_threading(void* arg) {
         int newVolume;
         switch (j_direction) {
             case JOYSTICK_UP: ; // increase volume
-                newVolume = AudioMixer_getVolume() + 5;
-                if (newVolume <= AUDIOMIXER_MAX_VOLUME) {
-                    AudioMixer_setVolume(newVolume);
-                }
+                // newVolume = AudioMixer_getVolume() + 5;
+                // if (newVolume <= AUDIOMIXER_MAX_VOLUME) {
+                //     AudioMixer_setVolume(newVolume);
+                //}
                 break;
             case JOYSTICK_DOWN: ; // decrease volume
-                newVolume = AudioMixer_getVolume() - 5;
-                if (newVolume >= 0) {
-                    AudioMixer_setVolume(newVolume);
-                }
+                // newVolume = AudioMixer_getVolume() - 5;
+                // if (newVolume >= 0) {
+                //     AudioMixer_setVolume(newVolume);
+               // }
                 break;
             case JOYSTICK_LEFT : ; // decrease BPM
-                Drum_decreaseBPM();
+                // Drum_decreaseBPM();
                 break;
             case JOYSTICK_RIGHT: ; // increase BPM
-                Drum_increaseBPM();
+                // Drum_increaseBPM();
                 break;
             case JOYSTICK_CENTER: ; // next drum beat mode
-                Drum_nextMode();
+                // Drum_nextMode();
             case JOYSTICK_NONE: ;
                 break;
             

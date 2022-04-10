@@ -22,7 +22,6 @@
 #include "inputSampler.h"
 #include "accelerometerInput.h"
 #include "udp.h"
-#include "drumPlayer.h" 
 
 /**
  *  joystickInput.cpp samples accelerometer input from each of  
@@ -152,7 +151,7 @@ void* Axis_threading(void* arg) {
         if (fabs(g_val) > a_threshold[axis]) {
             // printf("axis %d: %lf\n", axis + 1,  g_val);
 
-            Drum_playOnce(axis);
+            //Drum_playOnce(axis);
             sleep_ms(200);
         }
 
