@@ -8,8 +8,6 @@
 #include <time.h>
 
 #include "udp.h"	
-#include "audioMixer.h"
-#include "drumPlayer.h" 
 #include "potReading.h"
 
 #define MSG_MAX_LEN 11000
@@ -107,6 +105,7 @@ void* UDP_listen(void* arg) {
 		//int param = parsedCommand[1];
 
 		char messageTx[MSG_MAX_LEN];
+		printf("enums are %d\n", cmd);
 		int newVolume;	
 		int newBPM;
 		int initialTime = clock();
@@ -141,7 +140,7 @@ void* UDP_listen(void* arg) {
 					break;
 				}
 			default:
-				sprintf(messageTx, "Unknown Commmakeand\n\n");
+				sprintf(messageTx, "Unknown Commmand\n\n");
 				sendto( socketDescriptor,
 						messageTx, strlen(messageTx),
 						0,

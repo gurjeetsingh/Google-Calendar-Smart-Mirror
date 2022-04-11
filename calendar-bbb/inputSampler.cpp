@@ -21,7 +21,6 @@
 
 #include "inputSampler.h"
 #include "joystickInput.h"
-#include "accelerometerInput.h"
 
 #define BUFF_SIZE 1024
 /**
@@ -34,7 +33,7 @@
 void Zencape_startSampling(void) {
 
     Joystick_startSampling();
-    Accel_startSampling();
+    //Accel_startSampling();
 
 }
 
@@ -42,7 +41,7 @@ void Zencape_stopSampling(void) {
 	printf("Stopping zencape sampler...\n");
 
 	Joystick_stopSampling();
-    Accel_stopSampling();
+    //Accel_stopSampling();
 }
 
 // used by samplers to pause during debouncing period

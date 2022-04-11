@@ -297,7 +297,7 @@ function handleCommand(socket) {
 		});
 		// Handle an incoming message over the UDP from the local application.
 		client.on('message', function (message, remote) {
-			// console.log v("UDP Client: message Rx" + remote.address + ':' + remote.port +' - ' + message);
+			// console.log("UDP Client: message Rx" + remote.address + ':' + remote.port +' - ' + message);
 
 			var reply = message.toString('utf8')
 			// send response to client

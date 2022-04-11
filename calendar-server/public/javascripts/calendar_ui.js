@@ -79,6 +79,9 @@ var localMin;
 
 var localTime12;
 
+// check if same event has already been alerted
+var boolAlert = false
+
 // on keypress
 $(document).keypress(function(e) {
 	console.log(e)
@@ -108,6 +111,7 @@ $(document).ready(function() {
 	// bbb udp command from as3
 	//window.setInterval(function() {sendCommand("status 0")}, 800);
 
+	window.setInterval(function () {alertUpcomingEvent()}, 1000);
 
 
 	// message from server that bbb is unresponsive
@@ -164,7 +168,7 @@ $(document).ready(function() {
 			var eventPeriodList = (timePeriod == "AM") ? eventsArr['AM'] : eventsArr['PM']
 			eventPeriodList.push({ mstime: event.start.dateTime, eventTime: eventTime, pieChartTime: pieChartTime, 
 				eventTitle: eventTitle, desc: event.description, 
-				style: eventColours, colourName: colourName});
+				style: eventColours, colourName: colourName, alert: false});
 			
 		  });
 
@@ -204,11 +208,10 @@ $(document).ready(function() {
 
 	// to-do: use promises...getCalendarNames();
 	setTimeout(function() { getCalendarInfo(); }, 500);
-	// setTimeout(function() { sendCalendarApiRequest(); sendWeatherApiRequest() }, 1000);
-	// setTimeout(function() { populateEvents(); google.charts.setOnLoadCallback(drawPieChart); }, 3000);
-	//setInterval(function () {alertUpcomingEvent()}, 500)
+	setTimeout(function() { sendCalendarApiRequest(); sendWeatherApiRequest() }, 1000);
+	setTimeout(function() { populateEvents(); google.charts.setOnLoadCallback(drawPieChart); }, 3000);
 	
-	window.setInterval(function() {sendCommand("pot 0")}, 8000);
+	window.setInterval(function() {sendCommand("pot 0")}, 500);
 
 	window.setInterval(function() {sendCommand("viewButton 0")}, 1000);
 
@@ -333,35 +336,6 @@ function populateEvents() {
 	});
 }
 
-function alertUpcomingEvent() {
-	var eventPeriodList = (timePeriod == "AM") ? eventsArr['AM'] : eventsArr['PM']
-	eventPeriodList.sort(propertySort('mstime'))
-
-
-	var recentEvent = eventPeriodList[0].mstime
-	//used to gget secondsssssss
-	var recEvent = new Date(recentEvent)
-	var getDate = recentEvent.split("T")
-	var eventDate = getDate[0]
-	var currentDate = new Date()
-	// formatting for comparison yyyy-mm-dd
-	var curDate = currentDate.toISOString().split('T')[0]
-	/*
-	console.log("date of event" + eventDate)
-	console.log("current date" + curDate)
-	console.log("time of event" +  recEvent.getTime())
-	console.log("time of day" +  currentDate.getTime())
-	*/
-	// todays date -> check time
-	if(curDate === eventDate) {
-		//check if event is less than 1 hr
-		if((recEvent.getTime - currentDate.getTime()) < 36e5) {
-			sendCommand("alert 4")
-		}
-	
-	}
-
-}
 function drawPieChart() {
 
 	console.log(eventsArr)
@@ -443,9 +417,6 @@ function drawPieChart() {
 		$('#clock-hour'+i).css({'transform' : 'rotate('+ deg +'deg)'});
 	}
 
-
-
-
 	$('#hour-hand').width(pieHeight/2)
 	$('#hour-hand').css({top: piechartPos.top + pieRelPos + pieHeight/2, left: piechartPos.left + pieRelPos})
 	// update the clock hour hand
@@ -453,10 +424,6 @@ function drawPieChart() {
 	$('#hour-hand').css({'transform' : 'rotate('+ hourDegrees +'deg)'});
 	var hourDegrees = ((localHour / 12) * 360) + ((localMin/60)*30) + 90;
 	$('#hour-hand').css({'transform' : 'rotate('+ hourDegrees +'deg)'});
-
-
-
-
 
 	options = {
 		legend: 'none',
@@ -487,8 +454,54 @@ function drawPieChart() {
 
 	chart.draw(chartData, options);
 }
+function alertUpcomingEvent() {
+	//get selected event iindex
+	var recentEventIndex = selectedEvent
 
+	var eventPeriodList = (timePeriod == "AM") ? eventsArr['AM'] : eventsArr['PM']
+	var audio = new Audio("../wav-files/72125__kizilsungur__sweetalertsound1.wav")
+	try {
+		var recentEvent = eventPeriodList[recentEventIndex].mstime
+		var eventTitle  = eventPeriodList[recentEventIndex].eventTitle
+		//used to gget secondsssssss
+		var recEvent = new Date(recentEvent)
+		var getDate = recentEvent.split("T")
 
+		var eventDate = getDate[0]
+		var currentDate = new Date()
+		// formatting for comparison yyyy-mm-dd
+		var curDate = currentDate.toISOString().split('T')[0]
+		/*
+
+		console.log("date of event" + eventDate)
+		console.log("current date" + curDate)
+		console.log("time of event" +  recEvent.getTime())
+		console.log("time of day" +  currentDate.getTime())
+		*/
+		// check if selected event is 1 hr away from current time
+		if(curDate === eventDate) {
+			if(0 <= (recEvent.getTime() - currentDate.getTime()) && (recEvent.getTime() - currentDate.getTime()) < 36e5) {
+				console.log("show")
+				audio.autoplay = false
+				//plays audio once so no spam
+				if(eventPeriodList[recentEventIndex].alert === false) {
+
+					console.log("play once")
+					audio.play()
+					eventPeriodList[recentEventIndex].alert = true
+				} 
+				
+			}
+		}
+
+	}
+	catch(e) {
+		console.log(e)
+	}
+
+	
+
+}
 // sends command to server for status updates and commands for bbb
 function sendCommand(message) {
 	if (socket.socket.connected) {

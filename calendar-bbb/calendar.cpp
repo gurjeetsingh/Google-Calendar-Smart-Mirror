@@ -6,8 +6,6 @@
 #include <string.h>
 
 #include "inputSampler.h"
-#include "audioMixer.h"
-#include "drumPlayer.h" 
 #include "udp.h"	
 #include "nightLight.h"
 
