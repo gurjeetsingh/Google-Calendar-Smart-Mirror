@@ -10,12 +10,13 @@
 #include "gpio_help.h"
 #include "udp.h"
 
-#define LED_BLUE_GPIO_PIN 48
-#define LED_RED_GPIO_PIN 49     
-#define LED_YELLOW_GPIO_PIN 69
+#define LED_BLUE_GPIO_PIN 66
+#define LED_RED_GPIO_PIN 67    
+#define LED_YELLOW_GPIO_PIN 68
+#define LED_WHITE_GPIO_PIN 69
 
-#define LED_BUTTON_GPIO_PIN 44
-#define SCREEN_BUTTON_GPIO_PIN 68
+#define LED_BUTTON_GPIO_PIN 48
+#define SCREEN_BUTTON_GPIO_PIN 49
 
 #define GPIO_OUT "out"
 #define GPIO_IN "in"
@@ -23,10 +24,10 @@
 #define ON_LED "0"
 #define OFF_LED "1"
 
-#define NUM_OF_LEDS 3
+#define NUM_OF_LEDS 4
 #define BUFF_SIZE 1024
 
-int led_gpio_pins[NUM_OF_LEDS] = {48,49,69};
+int led_gpio_pins[NUM_OF_LEDS] = {66.67,68,69};
 
 static bool stop = false;
 
