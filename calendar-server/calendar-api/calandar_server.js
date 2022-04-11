@@ -71,6 +71,8 @@ function handleApiRequest(socket) {
 		// var absPath = "/proc/" + fileName
 		// console.log('accessing ' + absPath);
 		
+		console.log("client requested calendar: ", calName)
+
 		requestedCalName =  calName 
 		var relPath = "calendar-api/credentials.json"
 
@@ -195,19 +197,19 @@ function listEvents(auth, socket, calInfo) {
 	var calColours = calendarInfo.calendarColours[cal_i];
 	console.log("CALENDAR ID: ", calID);
 
-	var startHour = calInfo.startHour;
-	var endHour = calInfo.endHour;
-	var startDate = new Date();
-	var endDate = new Date();
-	console.log(startDate, " ",endDate)
-	startDate.setHours(startHour)
-	endDate.setHours(endHour[0], endHour[1])
+	// var startHour = calInfo.startHour;
+	// var endHour = calInfo.endHour;
+	// var startDate = new Date();
+	// var endDate = new Date();
+	// console.log(startDate, " ",endDate)
+	// startDate.setHours(startHour)
+	// endDate.setHours(endHour[0], endHour[1])
 	calendar.events.list({
 		// calendarId: 'primary',
 		calendarId: calID,
 		// timeMin: (new Date()).toISOString(),
-		timeMin: startDate.toISOString(),
-		timeMax: endDate.toISOString(),
+		timeMin: calInfo.startDate,
+		timeMax: calInfo.endDate,
 		maxResults: 10,
 		singleEvents: true,
 		orderBy: 'startTime',
@@ -215,7 +217,7 @@ function listEvents(auth, socket, calInfo) {
 		if (err) return console.log('The API returned an error: ' + err);
 		const events = res.data.items;
 		if (events.length) {
-		console.log(' Events from: ', startHour,  'o\'clock');
+		// console.log(' Events from: ', calInfo.startDate.getHours(),  'o\'clock');
 		events.map((event, i) => {
 			const start = event.start.dateTime || event.start.date;
 			const end = event.end.dateTime || event.end.date
@@ -223,6 +225,9 @@ function listEvents(auth, socket, calInfo) {
 			console.log(eventsArr[i])
 		});
 
+
+
+		console.log(res.data);
 		// console.log(calendar.calendarList.list())
 
 
@@ -236,6 +241,7 @@ function listEvents(auth, socket, calInfo) {
 
 		} else {
 		console.log('No upcoming events found.');
+		console.log(res.data);
 		}
 	});
 }

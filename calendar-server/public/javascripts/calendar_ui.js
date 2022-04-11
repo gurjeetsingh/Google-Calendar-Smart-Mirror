@@ -120,6 +120,8 @@ $(document).ready(function() {
 		console.log("Names of calendars")
 		console.log(calendarNames)
 
+		sendCalendarApiRequest();
+		sendWeatherApiRequest();
 	});	
 
 	// Handle data coming back from the server
@@ -163,6 +165,8 @@ $(document).ready(function() {
 				style: eventColours, colourName: colourName});
 			
 		  });
+		  populateEvents();
+		  google.charts.setOnLoadCallback(drawPieChart);
 	});	
 
 
@@ -188,8 +192,8 @@ $(document).ready(function() {
 
 	// to-do: use promises...getCalendarNames();
 	setTimeout(function() { getCalendarInfo(); }, 500);
-	setTimeout(function() { sendCalendarApiRequest(); sendWeatherApiRequest() }, 1000);
-	setTimeout(function() { populateEvents(); google.charts.setOnLoadCallback(drawPieChart); }, 3000);
+	// setTimeout(function() { sendCalendarApiRequest(); sendWeatherApiRequest() }, 1000);
+	// setTimeout(function() { populateEvents(); google.charts.setOnLoadCallback(drawPieChart); }, 3000);
 	//setInterval(function () {alertUpcomingEvent()}, 500)
 	
 	window.setInterval(function() {sendCommand("pot 0")}, 8000);
@@ -500,10 +504,18 @@ function sendCalendarApiRequest() {
 	var startHour = (timePeriod == "AM") ? 0 : 12;
 	var endHour = (timePeriod == "AM") ? [12, 0] : [23, 59];
 
+	var startDate = new Date();
+	var endDate = new Date();
+	console.log(startDate, " ",endDate)
+
+	startDate.setHours(startHour)
+	endDate.setHours(endHour[0], endHour[1])
+
 	// socket.connected for v0.9	
 	if (socket.socket.connected) {
 		for(var i = 0; i < calendarNames.length; i++) {
-			socket.emit('calendar-events', { calendarName: calendarNames[i], startHour: startHour, endHour: endHour});
+			// socket.emit('calendar-events', { calendarName: calendarNames[i], startHour: startHour, endHour: endHour});
+			socket.emit('calendar-events', { calendarName: calendarNames[i], startDate: startDate, endDate: endDate});
 		}
 
 		console.log("socket emmit calendar");
