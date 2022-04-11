@@ -48,7 +48,7 @@ const eventStyles = {
 	}
 }
 
-
+var viewMode = 0;
 
 var chart;
 
@@ -215,6 +215,7 @@ $(document).ready(function() {
 				break;
 		}
 	});
+
 
 });
 
@@ -551,6 +552,36 @@ function handlePotChange(sector){
 		currPotReading = sector;
 	}
 }
+
+function handleViewChange(view) {
+	viewMode = view
+	// default with calendar
+	if (view == 0) {
+		$('body').css('background-color', 'black');
+		$('#cnt-all').css('display', 'revert')
+		$('#light-border').css('display', 'none')
+
+		
+	// blank screen
+	} else if (view == 1) {
+		$('body').css('background-color', 'black');
+		$('#cnt-all').css('display', 'none')
+		$('#light-border').css('display', 'none')
+
+	// white border
+	} else if (view == 2) {
+		$('body').css('background-color', 'white');
+		$('#cnt-all').css('display', 'none')
+		$('#container').css('display', 'none')
+		$('#light-border').css('display', 'revert')
+		$('#light-border').css('background-color', 'black')
+		$('#light-border').css('padding', '90%')
+
+
+		// $('#body').css({border: '100px solid #ffffff;'})
+	}
+}
+
 function updateSelectedEvent(dir) {
 	var eventPeriodList = (timePeriod == "AM") ? eventsArr['AM'] : eventsArr['PM']
 	var numEvents = eventPeriodList.length;
