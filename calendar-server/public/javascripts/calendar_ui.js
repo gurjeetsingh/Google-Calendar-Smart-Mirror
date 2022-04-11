@@ -194,6 +194,8 @@ $(document).ready(function() {
 	
 	window.setInterval(function() {sendCommand("pot 0")}, 8000);
 
+	window.setInterval(function() {sendCommand("viewButton 0")}, 1000);
+
 	socket.on('commandReply', function(result) {
 
 		// hide error message if we recieve a response
@@ -205,7 +207,8 @@ $(document).ready(function() {
 				$('#BPMid').val	(command[1])
 				break;
 			case "screen":
-				console.log("Screen Button Pressed");
+				console.log("Screen Button Reply");
+				handleScreenButtonPressed(command[1]);
 				break;
 			case "pot":
 				handlePotChange(parseInt(command[1]));
@@ -553,6 +556,16 @@ function handlePotChange(sector){
 	}
 }
 
+function handleScreenButtonPressed(buttonPressed){
+	if(buttonPressed == 1){
+		var newViewMode = (viewMode + 1) % 3;
+		handleViewChange(newViewMode);
+		console.log("Handling button pressed");
+	}else{
+		console.log("handling button not pressed");
+		return;
+	}	
+}
 function handleViewChange(view) {
 	viewMode = view
 	// default with calendar

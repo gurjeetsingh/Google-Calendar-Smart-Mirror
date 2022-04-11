@@ -20,12 +20,14 @@
 
 char const *commandStr[5] = {
 	"status",
-    "pot"
+    "pot",
+	"viewButton",
 };
 
 enum COMMANDS {
 	STATUS = 0,
 	POT,
+	VIEWBUTTON,
 	UNKNOWN,
 	ALERT
 };
@@ -120,6 +122,24 @@ void* UDP_listen(void* arg) {
 						0,
 						(struct sockaddr *) &sinRemote, sin_len);					
 				break;
+			case VIEWBUTTON:
+				if(screen_button_pressed){
+					screen_button_pressed = false;
+					sprintf(messageTx, "screen 1");
+					printf("UDP screen button pressed\n");
+					sendto( socketDescriptor,
+						messageTx, strlen(messageTx),
+						0,
+						(struct sockaddr *) &sinRemote, sin_len);
+					break;
+				}else{
+					sprintf(messageTx, "screen 0");
+					sendto( socketDescriptor,
+						messageTx, strlen(messageTx),
+						0,
+						(struct sockaddr *) &sinRemote, sin_len);
+					break;
+				}
 			default:
 				sprintf(messageTx, "Unknown Commmakeand\n\n");
 				sendto( socketDescriptor,
@@ -129,17 +149,17 @@ void* UDP_listen(void* arg) {
 				break;
         }
 		
-		char screenMessage[MSG_MAX_LEN];
+		// char screenMessage[MSG_MAX_LEN];
 
-		if(screen_button_pressed){
-			screen_button_pressed = false;
-			sprintf(screenMessage, "screen 1");
-			printf("UDP screen button clicked\n");
-			sendto( socketDescriptor,
-						screenMessage, strlen(screenMessage),
-						0,
-						(struct sockaddr *) &sinRemote, sin_len);
-		}
+		// if(screen_button_pressed){
+		// 	screen_button_pressed = false;
+		// 	sprintf(screenMessage, "screen 1");
+		// 	printf("UDP screen button clicked\n");
+		// 	sendto( socketDescriptor,
+		// 				screenMessage, strlen(screenMessage),
+		// 				0,
+		// 				(struct sockaddr *) &sinRemote, sin_len);
+		// }
 		if(terminationTriggered) 
 		{
 			break;
