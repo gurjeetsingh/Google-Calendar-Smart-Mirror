@@ -49,7 +49,7 @@ function handleWeatherApiRequest(socket) {
 	socket.on('weather', function(cityName) {
 
         // testing purposes
-        cityName = 'vancouver';
+        cityName = 'surrey';
 
 		var request = require('request');
         request(`https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=b826132a8d9399e92d8f146145a34953&units=metric`,
