@@ -104,7 +104,7 @@ $(document).ready(function() {
 	window.setInterval(function() {getLocalDate(); }, 2000);
 
 	// bbb udp command from as3
-	window.setInterval(function() {sendCommand("status 0")}, 800);
+	//window.setInterval(function() {sendCommand("status 0")}, 800);
 
 
 
@@ -189,25 +189,28 @@ $(document).ready(function() {
 	// to-do: use promises...getCalendarNames();
 	setTimeout(function() { getCalendarInfo(); }, 500);
 	setTimeout(function() { sendCalendarApiRequest(); sendWeatherApiRequest() }, 1000);
-	setTimeout(function() { populateEvents(); google.charts.setOnLoadCallback(drawPieChart); }, 2000);
+	setTimeout(function() { populateEvents(); google.charts.setOnLoadCallback(drawPieChart); }, 3000);
 	//setInterval(function () {alertUpcomingEvent()}, 500)
 	
-	window.setInterval(function() {sendCommand("pot 0")}, 4000);
+	window.setInterval(function() {sendCommand("pot 0")}, 8000);
 
 	socket.on('commandReply', function(result) {
 
 		// hide error message if we recieve a response
 		hideError();
 		var command = result.split(' ')
+		console.log("calendar_ui - commandReply command = ", command);
 		switch(command[0]) {
 			case "tempo":
 				$('#BPMid').val	(command[1])
 				break;
+			case "screen":
+				console.log("Screen Button Pressed");
+				break;
 			case "pot":
 				handlePotChange(parseInt(command[1]));
 				console.log("Sector = ", parseInt(command[1]));
-			case "screen":
-				console.log("Screen Button Pressed");
+				break;
 			default:
 				break;
 		}
@@ -537,6 +540,9 @@ function convertMsToTime(milliseconds) {
 }
   
 function handlePotChange(sector){
+	if(sector == 0){
+		return;
+	}
 	if(sector > currPotReading){
 		updateSelectedEvent("down");
 		currPotReading = sector;

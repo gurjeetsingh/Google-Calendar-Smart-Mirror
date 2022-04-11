@@ -19,11 +19,13 @@
 #define NUM_COMMANDS 5
 
 char const *commandStr[5] = {
+	"status",
     "pot"
 };
 
 enum COMMANDS {
-	POT = 0,
+	STATUS = 0,
+	POT,
 	UNKNOWN,
 	ALERT
 };
@@ -107,8 +109,10 @@ void* UDP_listen(void* arg) {
 		int newBPM;
 		int initialTime = clock();
         switch (cmd) {
-	        case POT: ;
-				
+			case STATUS:
+				printf("UDP status command: breaking\n");
+				break;
+	        case POT:
 				sprintf(messageTx, "pot %d", getSelectedSector());
 				printf("sector is %d\n", getSelectedSector());
 				sendto( socketDescriptor,
@@ -158,11 +162,11 @@ void UDP_SetScreenButtonPressed(){
 void str2cmd(char *messageRx, int command[2]) {
 		char *pMsg = strtok(messageRx, " ");
 		char *aMsg[2]; // store space separated strings here
-
+		printf("UDP_str2cmd function\n");
 		int i = 0;
 		while(pMsg != NULL) {
 			aMsg[i] = pMsg;
-			printf("'%s'\n", pMsg);
+			printf("command '%s'\n", pMsg);
 			pMsg = strtok(NULL, " ");
 			i++;
 		}

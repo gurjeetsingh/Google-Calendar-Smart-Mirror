@@ -13,9 +13,9 @@
 #define LED_BLUE_GPIO_PIN 48
 #define LED_RED_GPIO_PIN 49     
 #define LED_YELLOW_GPIO_PIN 69
-#define LED_BUTTON_GPIO_PIN 44
 
-#define SCREEN_BUTTON_GPIO_PIN 26
+#define LED_BUTTON_GPIO_PIN 44
+#define SCREEN_BUTTON_GPIO_PIN 68
 
 #define GPIO_OUT "out"
 #define GPIO_IN "in"
@@ -99,7 +99,7 @@ void* runNightLight(void* arg){
         bool screen_button_pressed = false;
 
         //&& temp_shutdown_value != 0
-        while ((!led_button_pressed || !screen_button_pressed)&& !stop){
+        while ((!led_button_pressed && !screen_button_pressed)&& !stop){
             sleep_ms(1);
             led_button_pressed = getButtonPressed(LED_BUTTON_GPIO_PIN);
             screen_button_pressed = getButtonPressed(SCREEN_BUTTON_GPIO_PIN);
@@ -125,15 +125,13 @@ void* runNightLight(void* arg){
         }
         else if(screen_button_pressed){
             UDP_SetScreenButtonPressed();
+            printf("NightLight Screen Button Pressed\n");
 
         }
-        
+        sleep_ms(100);
 
-        //temp_shutdown_value--;
-        //&& temp_shutdown_value != 0
         while ((getButtonPressed(LED_BUTTON_GPIO_PIN) || getButtonPressed(SCREEN_BUTTON_GPIO_PIN)) && !stop){
             sleep_ms(10);
-            printf("waiting");
         }
     }
 

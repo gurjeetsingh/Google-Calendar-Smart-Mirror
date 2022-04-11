@@ -15,7 +15,7 @@ int main()
 {
 	srand(time(NULL));
 
-	//nightLightInit();
+	nightLightInit();
 	// create thread to play audio
 	//AudioMixer_init();
 	sleep(2);
@@ -29,7 +29,7 @@ int main()
 	sleep(600);
 
 	// device clean up and join threads
-	//nightLightStop();
+	nightLightStop();
 	UDP_stop();
 	//Zencape_stopSampling();
 	//Drum_stop();

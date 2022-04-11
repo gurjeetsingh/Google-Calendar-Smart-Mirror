@@ -45,7 +45,7 @@ $(document).ready(function() {
 	window.setInterval(function() {getLocalDate()}, 2000);
 
 	// bbb udp command from as3
-	window.setInterval(function() {sendCommand("status 0")}, 800);
+	//window.setInterval(function() {sendCommand("status 0")}, 800);
 
 	socket.on('commandReply', function(result) {
 
