@@ -240,8 +240,10 @@ function listEvents(auth, socket, calInfo) {
 
 
 		} else {
+		
 		console.log('No upcoming events found.');
 		console.log(res.data);
+		emitSocketData(socket, 'calendar-events', "no events from requested calendar", {calendarName: calInfo.calendarName, events: events, calendarColours: calColours});
 		}
 	});
 }

@@ -64,6 +64,8 @@ var currPotReading = 0;
 var calendarNames = [];
 var calendarColours = [];
 
+var eventsRecieved = 0;
+
 var timePeriod = "AM";
 
 var pieDataArr;
@@ -165,8 +167,18 @@ $(document).ready(function() {
 				style: eventColours, colourName: colourName});
 			
 		  });
-		  populateEvents();
-		  google.charts.setOnLoadCallback(drawPieChart);
+
+		  eventsRecieved++;
+
+		  console.log("eventsRecieved: ", eventsRecieved)
+		  console.log("CalName: ", result.contents.calendarName)
+		if (eventsRecieved == calendarNames.length) {
+			populateEvents();
+			google.charts.setOnLoadCallback(drawPieChart);
+		}
+
+
+		
 	});	
 
 
@@ -515,7 +527,7 @@ function sendCalendarApiRequest() {
 	if (socket.socket.connected) {
 		for(var i = 0; i < calendarNames.length; i++) {
 			// socket.emit('calendar-events', { calendarName: calendarNames[i], startHour: startHour, endHour: endHour});
-			socket.emit('calendar-events', { calendarName: calendarNames[i], startDate: startDate, endDate: endDate});
+			socket.emit('calendar-events', { calendarName: calendarNames[i], startDate: startDate.toISOString(), endDate: endDate.toISOString()});
 		}
 
 		console.log("socket emmit calendar");
