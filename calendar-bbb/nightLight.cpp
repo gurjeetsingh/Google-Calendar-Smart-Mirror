@@ -27,7 +27,7 @@
 #define NUM_OF_LEDS 4
 #define BUFF_SIZE 1024
 
-int led_gpio_pins[NUM_OF_LEDS] = {66.67,68,69};
+int led_gpio_pins[NUM_OF_LEDS] = {66,67,68,69};
 
 static bool stop = false;
 
