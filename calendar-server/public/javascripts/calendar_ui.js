@@ -1,5 +1,4 @@
 "use strict";
-// Client-side interactions with the browser.
 
 const monthNames = [
     "January",
@@ -58,7 +57,6 @@ var eventsArr = {
 }
 var selectedEvent = 0;
 var selectedSlice = 0;
-
 var currPotReading = 0;
 
 var calendarNames = [];
@@ -76,14 +74,11 @@ var chartData;
 
 var localHour;
 var localMin;
-
 var localTime12;
 
-// on keypress
+// handling on keypress for events list
 $(document).keypress(function(e) {
-	console.log(e)
 	e.preventDefault();
-	console.log("keypress")
 	var code = e.keyCode || e.which;
 	if(code == 119) { // w
 		console.log("w key pressed");
@@ -100,14 +95,12 @@ $(document).keypress(function(e) {
 var socket = io.connect();
 $(document).ready(function() {
 
+	// prepare google charts api
 	google.charts.load('current', {'packages':['corechart']});
+
+	// get and set local date for ui and requests
 	getLocalDate();
-
 	window.setInterval(function() {getLocalDate(); }, 2000);
-
-	// bbb udp command from as3
-	//window.setInterval(function() {sendCommand("status 0")}, 800);
-
 
 
 	// message from server that bbb is unresponsive
@@ -131,8 +124,6 @@ $(document).ready(function() {
 		var events = result.contents.events
 		var colourName = result.contents.calendarColours
 
-		console.log(events)
-
 		events.map((event, i) => {
 
 			const start = new Date(event.start.dateTime)
@@ -148,16 +139,23 @@ $(document).ready(function() {
 			var eventTitle = event.summary
 
 			// convert 1hr == 60 min time to 1hr == 100 
-			var startTime12 = parseInt(t24to12Hour(startHour)) + (startMin/60);
-			var endTime12 = parseInt(t24to12Hour(endHour)) + (endMin/60);
+			var startTime12 = parseInt(t24to12pieHour(startHour)) + (startMin/60);
+			var endTime12 = parseInt(t24to12pieHour(endHour)) + (endMin/60);
+
+			if (endTime12 < startTime12) {
+				endTime12 = 12;
+			}
 
 
-			console.log("startTime12: ", startTime12, " endTime12: ", endTime12)
+
+			var lengthTime12 = endTime12 - startTime12;
 			var pieChartTime = {start: startTime12,
 								end: endTime12,
-								length: Math.abs(endTime12 - startTime12) 
+								length: lengthTime12 
 								}
-			
+			console.log("event: ", eventTitle, " ", eventTime)
+			console.log("startTime12: ", startTime12, " endTime12: ", endTime12)
+			console.log("lengthTime12: ", lengthTime12)		
 
 			var eventColours = eventStyles[colourName];
 
@@ -171,10 +169,11 @@ $(document).ready(function() {
 
 		  eventsRecieved++;
 
-		  console.log("eventsRecieved: ", eventsRecieved)
-		  console.log("CalName: ", result.contents.calendarName)
+		//   console.log("eventsRecieved: ", eventsRecieved)
+		//   console.log("CalName: ", result.contents.calendarName)
 		if (eventsRecieved == calendarNames.length) {
 			populateEvents();
+			console.log(events)
 			google.charts.setOnLoadCallback(drawPieChart);
 		}
 
@@ -191,24 +190,18 @@ $(document).ready(function() {
 		var weatherIconURL = `http://openweathermap.org/img/wn/${icon}@2x.png`
 
 		$('#weather-icon').attr("src", weatherIconURL);
-		console.log(events)
 
 		var city = result.contents.name;
 		var celsius = Math.round( parseFloat(result.contents.main.temp));
 
 		$('#weather-city').html(city);
-
 		$('#weather-celsius-mag').html(celsius);
 
 	});		  
 		
 
-	// to-do: use promises...getCalendarNames();
-	setTimeout(function() { getCalendarInfo(); }, 500);
-	// setTimeout(function() { sendCalendarApiRequest(); sendWeatherApiRequest() }, 1000);
-	// setTimeout(function() { populateEvents(); google.charts.setOnLoadCallback(drawPieChart); }, 3000);
-	//setInterval(function () {alertUpcomingEvent()}, 500)
-	
+	// wait until page is ready, send requests to server
+	setTimeout(function() { getCalendarInfo(); }, 500);	
 	window.setInterval(function() {sendCommand("pot 0")}, 8000);
 
 	window.setInterval(function() {sendCommand("viewButton 0")}, 1000);
@@ -218,7 +211,6 @@ $(document).ready(function() {
 		// hide error message if we recieve a response
 		hideError();
 		var command = result.split(' ')
-		console.log("calendar_ui - commandReply command = ", command);
 		switch(command[0]) {
 			case "tempo":
 				$('#BPMid').val	(command[1])
@@ -239,22 +231,24 @@ $(document).ready(function() {
 
 });
 
-// // update events cnt if window size changed
-// $(window).resize(function () {
-//     console.log($('#schedule-cnt').height()); 
-// });
 
 // sends request for device uptime
 function sendWeatherApiRequest() {
 
 	// socket.connected for v0.9	
 	if (socket.socket.connected) {
-		socket.emit('weather');
+		socket.emit('weather', 'surrey');
 	} else {
 		console.log("no server connection");
 	}
 }
 
+function t24to12pieHour(hour) {
+	if (hour >= 12) {
+		hour -= 12;
+	}
+	return hour	
+}
 
 function t24to12Hour(hour) {
 	if (hour < 12) {
@@ -347,12 +341,7 @@ function alertUpcomingEvent() {
 	var currentDate = new Date()
 	// formatting for comparison yyyy-mm-dd
 	var curDate = currentDate.toISOString().split('T')[0]
-	/*
-	console.log("date of event" + eventDate)
-	console.log("current date" + curDate)
-	console.log("time of event" +  recEvent.getTime())
-	console.log("time of day" +  currentDate.getTime())
-	*/
+
 	// todays date -> check time
 	if(curDate === eventDate) {
 		//check if event is less than 1 hr
@@ -376,17 +365,21 @@ function drawPieChart() {
 	// fill pieDataArr from hour 0 to 12
 	var bestSlice = false;
 	var pieHour = 0;
+	var endTime12;
 	eventPeriodList.map((event, i) => {
-		var currStart = event.pieChartTime.start;
-		console.log("piechart start: ", pieHour, "event start: ", currStart)
-		if (i == 0) {
-			currStart -= 12;
-		}
-		
-		event.pieChartTime.length = 2.25;
+		var startTime12 = event.pieChartTime.start;
+		var endTime12 = event.pieChartTime.end;
+		var lengthTime12 = event.pieChartTime.length;
+		var eventTitle = event.eventTitle;
 
-		if (currStart > pieHour) {
-			pieDataArr.push(["Blank Slot", currStart - pieHour ]);
+
+		console.log("event: ", eventTitle)
+		console.log("startTime12: ", startTime12, " endTime12: ", endTime12)
+		console.log("lengthTime12: ", lengthTime12)		
+
+
+		if (startTime12 > pieHour) {
+			pieDataArr.push(["Blank Slot", startTime12 - pieHour ]);
 			sliceColours[j] = { color: 'transparent' };
 			j++;
 		}
@@ -394,13 +387,12 @@ function drawPieChart() {
 			
 			selectedSlice = j;
 		}
-		var currEnd = event.pieChartTime.end;
 
-		pieDataArr.push([event.eventTitle, event.pieChartTime.length]);
+		pieDataArr.push([eventTitle, lengthTime12]);
 		sliceColours[j] = { color: event.style.background};
 
 		// select the first upcoming event
-		if(currEnd > localTime12 && !bestSlice) {
+		if(endTime12 > localTime12 && !bestSlice) {
 			selectedSlice = j;
 			bestSlice = true;
 			sliceColours[j] = { color: event.style["background-active"]};
@@ -408,9 +400,14 @@ function drawPieChart() {
 			$(`#event${selectedEvent}`).css('background-color', event.style["background-active"]);
 		}
 		j++;
-		pieHour = event.pieChartTime.end;
+		pieHour = endTime12;
 	});
 
+	if (pieHour < 12) {
+		pieDataArr.push(["Blank Slot", 12 - pieHour ]);
+		sliceColours[j] = { color: 'transparent' };
+		j++;
+	}
 	console.log(pieDataArr)
 
 	chartData = google.visualization.arrayToDataTable(pieDataArr);
@@ -423,7 +420,7 @@ function drawPieChart() {
 	$('#clock-cnt').height(width);
 	$('#clock-cnt').width(width);
 
-	var pieRelHeight = 0.99 // % of
+	var pieRelHeight = 0.99 // % of cnt
 
 	var pieHeight = width*pieRelHeight;
 	var pieRelPos = width*(1-pieRelHeight)/2
@@ -445,13 +442,10 @@ function drawPieChart() {
 	for(var i = 1; i <= 12; i++) {
 		var fontSize = 18;
 		var deg = i*30
-		$('#clock-hour'+i).css({top: piechartPos.top + pieRelPos, left: piechartPos.left + pieRelPos + pieHeight/2 - fontSize})
-		$('#clock-hour'+i).height(pieHeight)
-		$('#clock-hour'+i).css({'transform' : 'rotate('+ deg +'deg)'});
+		$(`#clock-hour${i}`).css({top: piechartPos.top + pieRelPos, left: piechartPos.left + pieRelPos + pieHeight/2 - fontSize})
+		$(`#clock-hour${i}`).height(pieHeight)
+		$(`#clock-hour${i}`).css({'transform' : `rotate(${deg}deg)`});
 	}
-
-
-
 
 	$('#hour-hand').width(pieHeight/2)
 	$('#hour-hand').css({top: piechartPos.top + pieRelPos + pieHeight/2, left: piechartPos.left + pieRelPos})
@@ -460,9 +454,6 @@ function drawPieChart() {
 	$('#hour-hand').css({'transform' : 'rotate('+ hourDegrees +'deg)'});
 	var hourDegrees = ((localHour / 12) * 360) + ((localMin/60)*30) + 90;
 	$('#hour-hand').css({'transform' : 'rotate('+ hourDegrees +'deg)'});
-
-
-
 
 
 	options = {
@@ -478,8 +469,6 @@ function drawPieChart() {
 			left: 0,
 			right: 0,
 		},
-		// tooltip:{trigger : 'selection', isHtml: true, text: 'none', width: 20, textStyle: { fontSize: 18,
-		// bold: true}},
 		pieSliceText : 'none',
 		slices: sliceColours,
 		backgroundColor: 'none',
@@ -499,7 +488,7 @@ function drawPieChart() {
 // sends command to server for status updates and commands for bbb
 function sendCommand(message) {
 	if (socket.socket.connected) {
-		socket.emit('beatbox', message);
+		socket.emit('bbg', message);
 	} else {
 		// Lost socket connection to nodeJS server
 		console.log("no server connection");
@@ -533,7 +522,7 @@ function sendCalendarApiRequest() {
 	// socket.connected for v0.9	
 	if (socket.socket.connected) {
 		for(var i = 0; i < calendarNames.length; i++) {
-			// socket.emit('calendar-events', { calendarName: calendarNames[i], startHour: startHour, endHour: endHour});
+			// send request with local time + range
 			socket.emit('calendar-events', { calendarName: calendarNames[i], startDate: startDate.toISOString(), endDate: endDate.toISOString()});
 		}
 
@@ -591,12 +580,12 @@ function handleScreenButtonPressed(buttonPressed){
 	if(buttonPressed == 1){
 		var newViewMode = (viewMode + 1) % 3;
 		handleViewChange(newViewMode);
-		console.log("Handling button pressed");
 	}else{
-		console.log("handling button not pressed");
 		return;
 	}	
 }
+
+// changes the view mode (bbg button)
 function handleViewChange(view) {
 	viewMode = view
 	// default with calendar
@@ -620,12 +609,10 @@ function handleViewChange(view) {
 		$('#light-border').css('display', 'revert')
 		$('#light-border').css('background-color', 'black')
 		$('#light-border').css('padding', '90%')
-
-
-		// $('#body').css({border: '100px solid #ffffff;'})
 	}
 }
 
+// update the selected event; up or down (bbg pot)
 function updateSelectedEvent(dir) {
 	var eventPeriodList = (timePeriod == "AM") ? eventsArr['AM'] : eventsArr['PM']
 	var numEvents = eventPeriodList.length;
@@ -634,10 +621,8 @@ function updateSelectedEvent(dir) {
 	eventDescObj.css('display', 'none')
 	chart.setSelection([{row: selectedSlice, column: null}]);
 	var newColour = eventPeriodList[selectedEvent].style["background"];
-	console.log('old color', sliceColours[selectedSlice]);
-	console.log('new color', newColour)
+
 	sliceColours[selectedSlice] = {color: newColour};
-	console.log(sliceColours)
 	options.slices = sliceColours;
 
 	$(`#event${selectedEvent}`).css('background-color', newColour);
@@ -649,12 +634,8 @@ function updateSelectedEvent(dir) {
 		selectedEvent = selectedEvent+1
 	}
 	selectedEvent = (selectedEvent) % numEvents; 
-
 	eventDescObj = $('#schedule-event-desc-' + selectedEvent)
-
-	console.log('selected event #schedule-event-desc-' + selectedEvent)
 	eventDescObj.css('display', 'revert')
-	console.log(pieDataArr)
 
 	var j = 0;
 	for(var i = 1; i < pieDataArr.length; i++) {
@@ -670,18 +651,16 @@ function updateSelectedEvent(dir) {
 			break;
 		}
 	}
+
+	// highlight the segment and redraw the chart with new colours
 	chart.setSelection([{row: selectedSlice, column: null}]);
 	newColour = eventPeriodList[selectedEvent].style["background-active"];
-	console.log('old color', sliceColours[selectedSlice]);
-	console.log('new color', newColour)
 	sliceColours[selectedSlice] = {color: newColour};
 
 	$(`#event${selectedEvent}`).css('background-color', newColour);
 
-	console.log(sliceColours)
 	options.slices = sliceColours;
 	chart.draw(chartData, options);
-	// chart.setSelection([{row: selectedSlice, column: null}]);
 }
 
 function displayError(message) {

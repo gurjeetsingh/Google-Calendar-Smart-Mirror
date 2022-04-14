@@ -1,9 +1,7 @@
 # Makefile for building embedded application.
 # by Brian Fraser
 
-# Edit this file to compile extra C files into their own programs.
 TARGET= calendar
-#OBJS = inputSampler.o joystickInput.o accelerometerInput.o calendar.o audioMixer.o drumPlayer.o udp.o gpio_help.o nightLight.o potReading.o sleep_util.o
 OBJS = calendar.o udp.o nightLight.o gpio_help.o sleep_util.o potReading.o
 SOURCES= 
 
@@ -20,30 +18,13 @@ CPPFLAGS = -Wall -g -D _POSIX_C_SOURCE=200809L -Werror
 OBJFLAGS = -Wall -g -D _POSIX_C_SOURCE=200809L
 
 
-#all: inputSampler.o calendar.o audioMixer.o udp.o nightLight.o calendar 
 all: calendar.o gpio_help.o udp.o nightLight.o calendar 
-#calendar: $(OBJS)
-#	$(CC_CPP) $(CPPFLAGS) $(OBJS) -o $(OUTDIR)/$(TARGET) $(LFLAGS) -lpthread -lasound
+
 calendar: $(OBJS)
 	$(CC_CPP) $(CPPFLAGS) $(OBJS) -o $(OUTDIR)/$(TARGET) -lpthread
 
-audioMixer.o: audioMixer.cpp 
-	$(CC_CPP) $(OBJFLAGS) -c audioMixer.cpp -lpthread 
-
-drumPlayer.o: drumPlayer.cpp 
-	$(CC_CPP) $(OBJFLAGS) -c drumPlayer.cpp -lpthread 	
-
 calendar.o: calendar.cpp 
 	$(CC_CPP) $(OBJFLAGS) -c calendar.cpp -lpthread 
-
-inputSampler.o: inputSampler.cpp 
-	$(CC_CPP) $(OBJFLAGS) -c inputSampler.cpp -lpthread 
-
-joystickInput.o: joystickInput.cpp 
-	$(CC_CPP) $(OBJFLAGS) -c joystickInput.cpp -lpthread 
-
-accelerometerInput.o: accelerometerInput.cpp 
-	$(CC_CPP) $(OBJFLAGS) -c accelerometerInput.cpp -lpthread 
 
 udp.o: udp.cpp
 	$(CC_CPP) $(OBJFLAGS) -c udp.cpp -lpthread 
