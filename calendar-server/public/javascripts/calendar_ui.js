@@ -161,7 +161,7 @@ $(document).ready(function() {
 			var eventPeriodList = (timePeriod == "AM") ? eventsArr['AM'] : eventsArr['PM']
 			eventPeriodList.push({ mstime: event.start.dateTime, eventTime: eventTime, pieChartTime: pieChartTime, 
 				eventTitle: eventTitle, desc: event.description, 
-				style: eventColours, colourName: colourName});
+				style: eventColours, colourName: colourName, boolAlert: false});
 			
 		  });
 
@@ -200,6 +200,9 @@ $(document).ready(function() {
 
 	// wait until page is ready, send requests to server
 	setTimeout(function() { getCalendarInfo(); }, 500);	
+	window.setInterval(() => {
+		alertUpcomingEvent()
+	}, 500);
 	window.setInterval(function() {sendCommand("pot 0")}, 8000);
 
 	window.setInterval(function() {sendCommand("viewButton 0")}, 1000);
@@ -327,29 +330,43 @@ function populateEvents() {
 }
 
 function alertUpcomingEvent() {
+	//get selected event iindex
+	var recentEventIndex = selectedEvent
+
 	var eventPeriodList = (timePeriod == "AM") ? eventsArr['AM'] : eventsArr['PM']
-	eventPeriodList.sort(propertySort('mstime'))
 
+	var audio = new Audio("../wav-files/72125__kizilsungur__sweetalertsound1.wav")
+	try {
+		var recentEvent = eventPeriodList[recentEventIndex].mstime
+		//used to get seconds
+		var recEvent = new Date(recentEvent)
+		var getDate = recentEvent.split("T")
 
-	var recentEvent = eventPeriodList[0].mstime
-	//used to gget secondsssssss
-	var recEvent = new Date(recentEvent)
-	var getDate = recentEvent.split("T")
-	var eventDate = getDate[0]
-	var currentDate = new Date()
-	// formatting for comparison yyyy-mm-dd
-	var curDate = currentDate.toISOString().split('T')[0]
+		var currentDate = new Date()
 
-	// todays date -> check time
-	if(curDate === eventDate) {
-		//check if event is less than 1 hr
-		if((recEvent.getTime - currentDate.getTime()) < 36e5) {
-			sendCommand("alert 4")
+		// check if selected event is 1 hr away from current time
+		if(0 <= (recEvent.getTime() - currentDate.getTime()) && (recEvent.getTime() - currentDate.getTime()) < 36e5) {
+			console.log("show")
+			audio.autoplay = false
+			//plays audio once so no spam
+			if(eventPeriodList[recentEventIndex].boolAlert === false) {
+
+				console.log("play once")
+				audio.play()
+				eventPeriodList[recentEventIndex].boolAlert = true
+			} 
+				
 		}
-	
+
+	}
+	catch(e) {
+		console.log(e)
 	}
 
+	
+
 }
+
 function drawPieChart() {
 
 	console.log(eventsArr)
