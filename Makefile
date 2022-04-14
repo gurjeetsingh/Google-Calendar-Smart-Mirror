@@ -3,7 +3,7 @@ PROJECT_NAME=as3
 # DEPLOY_PATH= $(HOME)/cmpt433/public/node/$(PROJECT_NAME)-copy
 PUBDIR = $(HOME)/cmpt433/public
 
-all: bbb server wav npm
+all: bbb server npm
 
 mini: bbb server
 
@@ -39,11 +39,3 @@ npm: server
 	@echo '(This may take some time)'
 	@echo ''
 	cd $(PUBDIR)/calendar-server-copy/calendar-api/ && npm install	
-
-
-
-wav:
-	@echo 'COPYING AUDIO FILES DIR TO $(PUBDIR)/beatbox-wav-files/'
-	@echo ''
-	mkdir -p $(PUBDIR)/beatbox-wav-files/
-	cp -R beatbox-wav-files/* $(PUBDIR)/beatbox-wav-files/

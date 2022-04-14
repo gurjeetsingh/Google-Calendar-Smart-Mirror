@@ -146,8 +146,6 @@ $(document).ready(function() {
 				endTime12 = 12;
 			}
 
-
-
 			var lengthTime12 = endTime12 - startTime12;
 			var pieChartTime = {start: startTime12,
 								end: endTime12,
